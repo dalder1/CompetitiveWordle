@@ -14,12 +14,13 @@ import random
 WORDLIST_FILE = 'wordlist.txt'
 
 def printGuesses(guesses):
-    print('\n')
+    print('')
 
+    print("Guesses:")
     for word in guesses:
         print(word)
     
-    print('\n')
+    print('')
 
 # main function
 def main():
@@ -33,27 +34,20 @@ def main():
 
     with open(WORDLIST_FILE) as wordlistFile:
         wordlist = wordlistFile.read().splitlines() 
-    
-    print('wordlist', wordlist)
-
-    word = wordlist[random.randint(0, len(wordlist))]
-    print(word)
+    word = wordlist[random.randint(0, (len(wordlist) - 1))]
     solved = False
-    numGuesses = 0
     userGuesses = []
-    while(numGuesses < 6):
+    numGuesses = 1
+    while (numGuesses < 6):
         guess = input()
         if (len(guess) != 5):
             print('Guess must be 5 letters.')
-        elif(guess not in wordlist):
-            print('Word not found in dictionary.')
         elif(guess == word):
-            numGuesses += 1
             solved = True
             break
         else:
-            userGuesses.append(guess)
             numGuesses += 1
+            userGuesses.append(guess)
             printGuesses(userGuesses)
     
     if solved:
