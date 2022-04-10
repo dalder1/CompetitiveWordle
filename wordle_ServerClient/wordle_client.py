@@ -2,20 +2,25 @@ import re
 import pickle
 import socket, threading
 
-def send(username):
-    numGuesses = 1
+#TODO: one thread that sends/receives for your game, one thread that receives updates on others' games
+
+def send(username, client_sock):
+    numGuesses = 0
     while (numGuesses < 6):
         guess = input('\nGuess number ' + str(numGuesses) + ': ')
+        # TODO: do error handling of guess on backend (in wordlist, is valid word etc)
         if (len(guess) != 5):
             print('Guess must be 5 letters.')
             continue
-        data = {"numGuesses": numGuesses, "guess": guess}
         numGuesses += 1
-        cli_sock.send(pickle.dumps(data))
+        data = {"numGuesses": numGuesses, "guess": guess}
+        print(type(client_sock))
+        client_sock.send(pickle.dumps(data))
 
-def receive():
+def receive(client_sock):
     while True:
-        data = pickle.loads(cli_sock.recv(1024))
+        data = pickle.loads(client_sock.recv(1024))
+        #TODO: send flag field instead of searching in response
         response = data["response"]
         if "Great job!" in response:
             print(response)
@@ -26,9 +31,9 @@ def receive():
         else: 
             print(response)
 
-if __name__ == "__main__":   
+def main():
     # socket
-    cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # connect
     HOST = 'localhost'
@@ -36,12 +41,22 @@ if __name__ == "__main__":
 
     username = input('Enter your name to enter the game > ')
 
-    cli_sock.connect((HOST, PORT))     
+    client_sock.connect((HOST, PORT))     
     print('Connected to the game...')
 
+    print(type(client_sock))
 
-    thread_send = threading.Thread(target = send,args=[username])
+    thread_send = threading.Thread(target = send, args=[username, client_sock])
     thread_send.start()
 
-    thread_receive = threading.Thread(target = receive)
+    thread_receive = threading.Thread(target = receive, args=[client_sock])
     thread_receive.start()
+
+    thread_send.join()
+    thread_receive.join()
+
+    client_sock.close()
+
+if __name__ == "__main__":
+    main()
+    exit(0)
