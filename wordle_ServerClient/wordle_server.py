@@ -57,12 +57,15 @@ def send_to_all_players(player_sock, msg):
 # main
 # main function: initializes server and calls game logic
 def main():
-    conn_list = []
-
+    # --- choose starting word ---
+    #TODO: get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
         wordlist = wordlistFile.read().splitlines() 
     word = wordlist[random.randint(0, (len(wordlist) - 1))]
     print('Chosen word: ' + word)
+
+    # --- server socket setup ---
+    conn_list = []
 
     # socket
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
