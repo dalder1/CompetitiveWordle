@@ -2,10 +2,6 @@
 # Contains class that tracks state of player in wordle game
 
 
-from contextlib import nullcontext
-from logging import NullHandler
-
-
 class User:
     __score = 0
     __pastGuesses = []
@@ -33,18 +29,19 @@ class User:
                 elif(guess[i] in self.words[self.__currentWord]):
                     close.append(i)
             self.__pastGuesses.append((guess, right, close))
-            if (guess == self.words[self.__currentWord]):
-                self.__guessNumber += 1
-                self.__currentWord += 1
-                return ("word correct", self.__pastGuesses)    
             self.__guessNumber += 1
-            return ("game continue", self.__pastGuesses)
+            if (guess == self.words[self.__currentWord]):
+                return ("word correct", self.__pastGuesses)
+            elif(self.__guessNumber == 7):
+                return ("game over, you lost", self.__pastGuesses)  
+            else: 
+                return ("game continue", self.__pastGuesses)
 
         else: 
-            return ("game over, you lost", self.__pastGuesses)
+            return ("error: game is already over",)
 
     def getScore(self):
-        return "notdone"
+        return self.__calculateScore(self.__pastGuesses)
 
     def __calculateScore(self, pastGuesses):
         return 100

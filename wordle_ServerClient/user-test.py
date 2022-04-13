@@ -10,6 +10,9 @@ word = wordlist[random.randint(0, (len(wordlist) - 1))]
 game = User("daniel", ["fairy"])
 for i in range(7):
     guess = input()
-    print(game.makeGuess(guess))
-
+    response = game.makeGuess(guess)
+    if ("word correct" in response[0]) or ("game over" in response[0]):
+        print(response)
+        break
+    print(response)
 
