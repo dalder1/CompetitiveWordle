@@ -3,6 +3,8 @@ import socket, threading
 import pickle
 from unicodedata import decimal
 
+WORDLIST_FILE = 'wordlist.txt'
+
 def accept_player(word):
     #accept    
     cli_sock, cli_add = ser_sock.accept()
@@ -43,13 +45,18 @@ def send_to_all_players(cs_sock, msg):
         if client != cs_sock:
             client.send(msg)
 
-if __name__ == "__main__":    
-    CONNECTION_LIST = []
-    WORDLIST_FILE = 'wordlist.txt'
 
+# main
+# main function: initializes server and calls game logic
+def main():
+    # --- choose starting word ---
+    #TODO: get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
         wordlist = wordlistFile.read().splitlines() 
     word = wordlist[random.randint(0, (len(wordlist) - 1))]
+
+    # --- server socket setup ---
+    conn_list = []
 
     # socket
     ser_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
