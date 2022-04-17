@@ -9,7 +9,6 @@
 ### 
 
 from Format import Format
-from unittest import TestCase
 
 def equal(got, expected):
     """ check if two things are equal """
