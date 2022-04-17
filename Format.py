@@ -23,7 +23,7 @@ class Format:
             'green': '\033[32m'
         }
 
-    def format_string(self, word, correct, semi_correct):
+    def format_colors(self, word, correct, semi_correct):
         """
             takes in a word, an array of correct indices,
             and an array of semi-correct indices
