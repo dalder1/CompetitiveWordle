@@ -2,9 +2,6 @@
 # Contains class that tracks state of player in wordle game
 
 
-from operator import mod
-
-
 class User:
     __guessNumber = 1
 
@@ -13,6 +10,8 @@ class User:
     def __init__(self, name, words):
         self.name = name
         self.words = words
+        print(type(self.words))
+        print()
         self.__currentWord = 0
         self.__pastGuesses = [None] * len(words)
 
