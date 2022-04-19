@@ -1,7 +1,7 @@
 # user.py
 # Contains class that tracks state of player in wordle game
 
-from Format import Format
+from Format import format_colors
 
 class User:
     __guessNumber = 1
@@ -11,7 +11,6 @@ class User:
     def __init__(self, name, words):
         self.name = name
         self.words = words
-        self.formatter = Format()
         self.__currentWord = 0
         self.__pastGuesses = [[] for i in range(len(words))]
         self.__print_guesses = ["" for i in range(len(words))]
@@ -30,7 +29,7 @@ class User:
                     close.append(i)
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
-            self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + self.formatter.format_colors(guess, right, close) + "\n"
+            self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + format_colors(guess, right, close) + "\n"
             self.__guessNumber += 1
 
             # determine return state
