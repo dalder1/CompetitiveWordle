@@ -2,6 +2,9 @@
 # Contains class that tracks state of player in wordle game
 
 
+from operator import mod
+
+
 class User:
     __guessNumber = 1
 
@@ -10,24 +13,33 @@ class User:
     def __init__(self, name, words):
         self.name = name
         self.words = words
-        print(type(self.words))
-        print()
         self.__currentWord = 0
         self.__pastGuesses = [None] * len(words)
 
 
     def makeGuess(self, guess):
         if (self.__guessNumber < 7) and (self.__currentWord < len(self.words)):
-            print()
-            print(self.__guessNumber)
-            print()
             right = []
             close = []
-            for i in range(5):
-                if(guess[i] == (self.words[self.__currentWord][i])):
+            word = self.words[self.__currentWord]
+            modifiedGuess = guess
+            for i in range(5): # find all correct letter
+                if(modifiedGuess[i] == word[i]):
                     right.append(i)
-                elif(guess[i] in self.words[self.__currentWord]):
+                    # prevent duplicates for double letters
+                    wordList = list(word)
+                    wordList[i] = '#'
+                    word = ''.join(wordList)
+                    # prevent letter from being both correct and close
+                    guessList = list(modifiedGuess)
+                    guessList[i]= '*'
+                    modifiedGuess = ''.join(guessList)
+            for i in range(5): # find all close letters
+                if(modifiedGuess[i] in word):
                     close.append(i)
+                    #prevent duplcates for double letters
+                    word = word.replace(modifiedGuess[i], '#', 1)
+
             if (self.__pastGuesses[self.__currentWord] == None):
                 self.__pastGuesses[self.__currentWord] = [(guess, right, close)]
             else: 
@@ -49,7 +61,7 @@ class User:
                 return ("you didnt get this word, good luck on next one", self.__pastGuesses)
             else: 
                 return ("game continue", self.__pastGuesses)
-        else: 
+        else: # caused by making guess after game is already over
             return ("error: game is already over",)
 
     def getScore(self):
