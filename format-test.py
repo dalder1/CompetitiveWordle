@@ -17,7 +17,7 @@ def equal(got, expected):
 def __test_print_helper(format_instance, description, expected, WORD, correct, semi_correct):
     """ helper function for printing tests """
     print('Testing %s: %s' % (WORD, description))
-    result = format_instance.format_string(WORD, correct, semi_correct)
+    result = format_instance.format_colors(WORD, correct, semi_correct)
     print(result)
 
     ok = equal(expected, result)
@@ -70,7 +70,7 @@ def __test_error_helper(format_instance, description, WORD, correct, semi_correc
     print(f'Testing correct: {correct}, semi-correct: {semi_correct} %s' % description)
 
     try:
-        format_instance.format_string(WORD, correct, semi_correct)
+        format_instance.format_colors(WORD, correct, semi_correct)
         print("\033[31m Test failed! \033[0m")
     except ValueError:
         print("\033[32m Test passed. \033[0m")
