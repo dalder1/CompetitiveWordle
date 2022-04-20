@@ -1,58 +1,87 @@
+#!/usr/bin/env python3
 import pickle
 import socket, threading
 
 from workQueue import WorkQueue
+from status_codes import Status
 
 # one thread that handles game, one thread that does all listening
 
-def send(username, client_sock, queue, end_flag):
+def run_game(username, client_sock, queue, end_flag):
+    """
+        takes a username, socket, thread-safe queue, and event.
+        
+        the username is the client's username for the game
+        the socket is used to send to the server
+        the queue is used to grab the server's responses from the listener
+        the event is used to signal the listener if the client quits manually
+
+        runs a single client's wordle game - is responsible
+        for sending the client's guesses to the server and processing
+        the response.
+    """
     prev_print = ""
     while True:
         # take input and send guess
         guess = input("Guess: ")
+
         # check if client is quitting
         if guess == "quit":
             end_flag.set()
             print("goodbye!")
-            client_sock.send(pickle.dumps({"status": 1}))
+            client_sock.send(pickle.dumps({"status": Status.CLIENT_QUIT}))
             break
+        
         # light input validation
         if (len(guess) != 5):
             print("Guess must be 5 letters.")
             continue
-        data = {"status": 0, "guess": guess.lower()}
+        data = {"status": Status.GUESS_MADE, "guess": guess.lower()}
+
         # send to server
         client_sock.send(pickle.dumps(data))
 
         # process result
         response = queue.getWork()
         status = response["status"]
-        if status == 0:
+        if status == Status.INCORRECT_GUESS:
             prev_print = response["toPrint"]
             print(prev_print)
             print("Score: " + str(response["score"]))
-        elif status == 1:
+        elif status == Status.CORRECT_GUESS:
             prev_print = response["toPrint"]
             print(prev_print)
             print("You guessed this word!")
             prev_print = "" # reset for new word
             print("Score: " + str(response["score"]))
-        elif status == 2:
+        elif status == Status.OUT_OF_GUESSES:
             print(response["toPrint"])
             print("You're out of guesses on this word.")
             prev_print = "" # reset for new word
             print("Score: " + str(response["score"]))
-        elif status == 10:
+        elif status == Status.GAME_COMPLETE:
             print(response["toPrint"])
             print("You've finished guessing every word!")
             print("Your final score: " + str(response["score"]))
             break
-        elif status == 4:
+        elif status == Status.INVALID_GUESS:
             print(prev_print)
             print("Sorry, that's not in our word list.")
 
 
 def receive(client_sock, queue, end_flag):
+    """
+        takes a socket, thread-safe queue, and event.
+
+        the socket is used to receive messages from the server
+        the queue is used to message the server's responses to the game thread
+        the event is used to check if the client quits manually
+
+        listens to the server and serves the responses back to the game thread
+        future work: prints other clients' boards and scores
+
+        raises value error if invalid status code is received from server
+    """
     while True:
         # check if client is quitting
         if end_flag.is_set():
@@ -60,23 +89,23 @@ def receive(client_sock, queue, end_flag):
         data = pickle.loads(client_sock.recv(1024))
         if data:
             status = data["status"]
-            if status < 10:
+            if status < Status.GAME_COMPLETE:
                 # send to game handler
                 queue.addWork(data)
-            elif status == 10:
+            elif status == Status.GAME_COMPLETE:
                 # end game
                 queue.addWork(data)
-                # TODO: don't break, keep listening for all scores
+                # TODO: don't break, keep listening for all scores - combine with above case
                 break
-            elif status == 11:
+            elif status == Status.SCORE_UPDATE:
                 # TODO: print another player's board
                 print("someone sent a board lol")
-            elif status == 20:
+            elif status == Status.TERMINATE:
                 # disconnect client
                 break
             else:
-                # TODO: error of some kind?
-                print("someone goofed")
+                # wrong status code
+                raise ValueError("Error: invalid status code in response from server.")
 
 def main():
     # socket
@@ -96,17 +125,21 @@ def main():
     print('Connected to the game...')
 
     # send name
-    client_sock.send(pickle.dumps({"status": 2, "name": username}))
+    client_sock.send(pickle.dumps({"status": Status.CLIENT_NAME, "name": username}))
 
+    # start receiver
     thread_receive = threading.Thread(target = receive, args=[client_sock, queue, end_flag])
     thread_receive.start()
 
-    thread_send = threading.Thread(target = send, args=[username, client_sock, queue, end_flag])
+    # start listener
+    thread_send = threading.Thread(target = run_game, args=[username, client_sock, queue, end_flag])
     thread_send.start()
 
+    # join both
     thread_send.join()
     thread_receive.join()
 
+    # only close after both threads complete
     client_sock.close()
 
 if __name__ == "__main__":

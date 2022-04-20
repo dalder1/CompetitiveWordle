@@ -2,6 +2,7 @@
 # Contains class that tracks state of player in wordle game
 
 from Format import format_colors
+from status_codes import Status
 
 class User:
     __guessNumber = 1
@@ -37,24 +38,24 @@ class User:
             # game complete on correct guess
             if ((guess == self.words[self.__currentWord]) and 
                                    (self.__currentWord >= (len(self.words) -1))):
-                return (10, self.__print_guesses[self.__currentWord])
+                return (Status.GAME_COMPLETE, self.__print_guesses[self.__currentWord])
             # word complete on correct guess
             elif (guess == self.words[self.__currentWord]):
                 self.__currentWord += 1
                 self.__guessNumber = 1
-                return (1, self.__print_guesses[self.__currentWord-1])
+                return (Status.CORRECT_GUESS, self.__print_guesses[self.__currentWord-1])
             # game complete on wrong guess
             elif ((self.__guessNumber == 7) and 
                                    (self.__currentWord >= (len(self.words) -1))):
-                return (10, self.__print_guesses[self.__currentWord])
+                return (Status.GAME_COMPLETE, self.__print_guesses[self.__currentWord])
             # word complete on wrong guess
             elif (self.__guessNumber == 7):
                 self.__currentWord += 1
                 self.__guessNumber = 1
-                return (2, self.__print_guesses[self.__currentWord-1])
+                return (Status.OUT_OF_GUESSES, self.__print_guesses[self.__currentWord-1])
             # word incomplete
             else: 
-                return (0, self.__print_guesses[self.__currentWord])
+                return (Status.INCORRECT_GUESS, self.__print_guesses[self.__currentWord])
         else: 
             return ("error: game is already over",)
 

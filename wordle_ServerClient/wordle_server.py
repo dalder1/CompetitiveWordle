@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import random
 import socket, threading
 import pickle
 from user import User
+from status_codes import Status
 from unicodedata import decimal
 
 WORDLIST_FILE = 'wordlist.txt'
@@ -15,7 +17,7 @@ def player_thread(player_sock, words):
     name = ""
     try:
         data = pickle.loads(player_sock.recv(1024))
-        if data and data["status"] == 2:
+        if data and data["status"] == Status.CLIENT_NAME:
             name = data["name"]
             print("player '" + name + "' joined the game")
         else:
@@ -29,30 +31,48 @@ def player_thread(player_sock, words):
 
     # create user
     user = User(name, words)
+
+    # main loop - run game for this client
     while True:
         try:
+            # receive a guess
             data = pickle.loads(player_sock.recv(1024))
             if data:
-                if data["status"] == 0:    
+                # guess made case
+                if data["status"] == Status.GUESS_MADE:    
                     guess = data["guess"]
+
+                    # validate guess
                     if guess not in WORDLIST:
-                        response = {"status": 4}
+                        response = {"status": Status.INVALID_GUESS}
                         send_to_player(player_sock, pickle.dumps(response))
                         continue
+
+                    # make guess and form response
                     status, guesses = user.makeGuess(guess)
                     response = {"status": status,
                                 "toPrint": guesses,
                                 "score": user.getScore()}
                     send_to_player(player_sock, pickle.dumps(response))
-                    if status == 10:
+
+                    # check if game complete
+                    if status == Status.GAME_COMPLETE:
                         break
-                elif data["status"] == 1:
+
+                # client quit case
+                elif data["status"] == Status.CLIENT_QUIT:
                     print("client disconnected")
-                    send_to_player(player_sock, pickle.dumps({"status": 20}))
+                    send_to_player(player_sock, pickle.dumps({"status": Status.TERMINATE}))
                     return
+
+                # invalid communication
+                else:
+                    raise ValueError("error: invalid status code from client")
         except Exception as x:
-            print(x.message)
-            break
+            # print and close connection - server should keep running
+            print(x)
+            player_sock.close()
+            return
     # end the game
     print("player '" + name + "' has finished guessing")
     player_sock.close()

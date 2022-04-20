@@ -37,8 +37,9 @@ class WorkQueue():
         get work from queue in thread-safe manner, waiting if no work available
         '''
         with self.queueLock:
-            # we use wait_for so that if the cond_var is notified before
-            # a thread is ready, we still check if there is work
-            self.workAvailable.wait_for(self.isWork)
+            while(not self.workList):
+                # we use wait_for so that if the cond_var is notified before
+                # a thread is ready, we still check if there is work
+                self.workAvailable.wait_for(self.isWork)
             work = self.workList.pop(0)
         return work
