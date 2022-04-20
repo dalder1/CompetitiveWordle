@@ -13,6 +13,12 @@ for i in range(len(words) * 6):
     response = game.makeGuess(guess)
     if ("game over" in response[0]):
         print(response)
+        print("Score is: ")
+        print(game.getScore())
+        print()
         break
     print(response)
+    print("Score is: ")
+    print(game.getScore())
+    print()
 
