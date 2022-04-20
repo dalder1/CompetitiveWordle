@@ -21,13 +21,25 @@ class User:
         if (self.__guessNumber < 7) and (self.__currentWord < len(self.words)):
             right = []
             close = []
-
-            # check guess against target word
-            for i in range(5):
-                if(guess[i] == (self.words[self.__currentWord][i])):
+            word = self.words[self.__currentWord]
+            modifiedGuess = guess
+            for i in range(5): # find all correct letter
+                if(modifiedGuess[i] == word[i]):
                     right.append(i)
-                elif(guess[i] in self.words[self.__currentWord]):
+                    # prevent duplicates for double letters
+                    wordList = list(word)
+                    wordList[i] = '#'
+                    word = ''.join(wordList)
+                    # prevent letter from being both correct and close
+                    guessList = list(modifiedGuess)
+                    guessList[i]= '*'
+                    modifiedGuess = ''.join(guessList)
+            for i in range(5): # find all close letters
+                if(modifiedGuess[i] in word):
                     close.append(i)
+                    #prevent duplcates for double letters
+                    word = word.replace(modifiedGuess[i], '#', 1)
+
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
             self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + format_colors(guess, right, close) + "\n"
@@ -56,8 +68,8 @@ class User:
             # word incomplete
             else: 
                 return (Status.INCORRECT_GUESS, self.__print_guesses[self.__currentWord])
-        else: 
-            return ("error: game is already over",)
+        else: # caused by making guess after game is already over
+            return (Status.INVALID_GUESS,)
 
     def getScore(self):
         return self.__calculateScore(self.__pastGuesses)
