@@ -8,6 +8,7 @@ from unicodedata import decimal
 
 WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 1
+NUM_WORDS = 5
 
 def player_thread(player_sock, words):
     # TODO: this is terrible practice
@@ -101,7 +102,7 @@ def main():
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
         WORDLIST = wordlistFile.read().splitlines() 
-    words = [WORDLIST[random.randint(0, (len(WORDLIST) - 1))] for x in range(5)]
+    words = [WORDLIST[random.randint(0, (len(WORDLIST) - 1))] for x in range(NUM_WORDS)]
     print(words)
 
     # --- server socket setup ---
