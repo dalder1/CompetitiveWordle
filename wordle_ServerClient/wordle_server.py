@@ -67,7 +67,7 @@ def player_thread(player_sock, words):
 
                 # invalid communication
                 else:
-                    raise ValueError("error: invalid status code from client")
+                    raise ValueError("Error: invalid status code from client.")
         except Exception as x:
             # print and close connection - server should keep running
             print(x)
