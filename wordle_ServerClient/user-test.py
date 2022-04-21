@@ -1,5 +1,7 @@
 import random
 from user import User
+from status_codes import Status
+
 
 WORDLIST_FILE = 'wordlist.txt'
 
@@ -11,7 +13,7 @@ game = User("daniel", words)
 for i in range(len(words) * 6):
     guess = input()
     response = game.makeGuess(guess)
-    if ("game over" in response[0]):
+    if (response[0] == Status.GAME_COMPLETE):
         print(response)
         print("Score is: ")
         print(game.getScore())

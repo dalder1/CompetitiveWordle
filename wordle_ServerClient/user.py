@@ -87,22 +87,21 @@ class User:
     def __calculateScore(self):
         currentGuesses = self.__pastGuesses[self.__currentWord]
         lastGuess = currentGuesses[-1]
-        print(lastGuess)
         guess = lastGuess[0]
         correctLetters = lastGuess[1]
         closeLetters = lastGuess[2]
         improvedScore = 0  
 
         if len(correctLetters) == 5: #they guessed the word
-            if len(currentGuesses == 1):
+            if len(currentGuesses) == 1:
                 improvedScore += 500
-            if len(currentGuesses == 2):
+            if len(currentGuesses) == 2:
                 improvedScore += 250
-            if len(currentGuesses == 3):
+            if len(currentGuesses) == 3:
                 improvedScore += 125 
-            if len(currentGuesses == 4):
+            if len(currentGuesses) == 4:
                 improvedScore += 75   
-            if len(currentGuesses == 5):
+            if len(currentGuesses) == 5:
                 improvedScore += 50
 
         for letterIndex in correctLetters: # new correct letters
