@@ -20,6 +20,9 @@ class User:
         self.__print_guesses = ["" for i in range(len(words))]
 
 
+    def getWord(self):
+        self.words[self.__currentWord]
+
     def makeGuess(self, guess):
         if (self.__guessNumber < 7) and (self.__currentWord < len(self.words)):
             right = []
@@ -106,17 +109,17 @@ class User:
 
         for letterIndex in correctLetters: # new correct letters
             letter = guess[letterIndex]
-            if ((letter in self.__notRight) and (letter in self.__notClose)):
+            if ((letter in self.__notRight) and (letter in self.__notClose)): #they were not previously yellow and not guessed
                 improvedScore += 100
                 self.__notClose.remove(letter)
                 self.__notRight.remove(letter)
-            elif (letter in self.__notRight):
+            elif (letter in self.__notRight): # they were previosuly yellow
                 improvedScore += 50
                 self.__notRight.remove(letter)
 
         for letterIndex in closeLetters: # new close letters
             letter = guess[letterIndex]
-            if (letter in self.__notClose):
+            if (letter in self.__notClose): 
                 improvedScore += 25
                 self.__notClose.remove(letter)
 

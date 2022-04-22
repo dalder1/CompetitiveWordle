@@ -7,20 +7,32 @@ WORDLIST_FILE = 'wordlist.txt'
 
 with open(WORDLIST_FILE) as wordlistFile:
     wordlist = wordlistFile.read().splitlines() 
-# word = wordlist[random.randint(0, (len(wordlist) - 1))]
-words = ["fairy", "memor", "large", "apple"]
+words = [wordlist[random.randint(0, (len(wordlist) - 1))] for i in range (5)]
 game = User("daniel", words)
 for i in range(len(words) * 6):
     guess = input()
     response = game.makeGuess(guess)
-    if (response[0] == Status.GAME_COMPLETE):
-        print(response)
-        print("Score is: ")
-        print(game.getScore())
-        print()
+    status = response[0]
+    prev_print = response[1]
+    score = game.getScore()
+    if status == Status.INCORRECT_GUESS:
+        print(prev_print)
+        print("Score: " + str(score))
+    elif status == Status.CORRECT_GUESS:
+        print(prev_print)
+        print("You guessed this word!")
+        prev_print = "" # reset for new word
+        print("Score: " + str(score))
+    elif status == Status.OUT_OF_GUESSES:
+        print("You're out of guesses on this word.")
+        print(game.getWord())
+        prev_print = "" # reset for new word
+        print("Score: " + str(score))
+    elif status == Status.GAME_COMPLETE:
+        print("You've finished guessing every word!")
+        print("Your final score: " + str(score))
         break
-    print(response)
-    print("Score is: ")
-    print(game.getScore())
+    elif status == Status.INVALID_GUESS:
+        print("Sorry, that's not in our word list.")
     print()
 
