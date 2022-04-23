@@ -8,6 +8,7 @@ class Status(IntEnum):
     INVALID_GUESS   = 3
     GAME_COMPLETE   = 10
     SCORE_UPDATE    = 11
+    GAME_UPDATE     = 12
     TERMINATE       = 20
 
     GUESS_MADE      = -1

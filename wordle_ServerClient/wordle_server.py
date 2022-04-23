@@ -10,7 +10,7 @@ WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 1
 NUM_WORDS = 5
 
-def player_thread(player_sock, words):
+def player_thread(player_sock, words, conn_list):
     # TODO: this is terrible practice
     global WORDLIST
 
@@ -27,6 +27,8 @@ def player_thread(player_sock, words):
             return
     except Exception as x:
         print(x.message)
+        # TODO: lock conn_list
+        conn_list.remove(player_sock)
         player_sock.close()
         return
 
@@ -58,6 +60,11 @@ def player_thread(player_sock, words):
 
                     # check if game complete
                     if status == Status.GAME_COMPLETE:
+                        #make msg = final score, player name
+                        broadcast = {"status": Status.GAME_UPDATE,
+                                "name": name,
+                                "score": user.getScore()}
+                        send_to_all_players(player_sock, pickle.dumps(broadcast), conn_list)
                         break
 
                 # client quit case
@@ -72,10 +79,14 @@ def player_thread(player_sock, words):
         except Exception as x:
             # print and close connection - server should keep running
             print(x)
+            # TODO: lock conn_list
+            conn_list.remove(player_sock)
             player_sock.close()
             return
     # end the game
     print("player '" + name + "' has finished guessing")
+    # TODO: lock conn_list
+    conn_list.remove(player_sock)
     player_sock.close()
 
 # send_to_player
@@ -87,7 +98,7 @@ def send_to_player(player_sock, msg):
 # send_to_all_players
 # takes in current player's socket and message, sends message to all players
 # except current
-def send_to_all_players(player_sock, msg):
+def send_to_all_players(player_sock, msg, conn_list):
     for client in conn_list:
         print("sending")
         if client != player_sock:
@@ -126,9 +137,9 @@ def main():
     for i in range(MAX_PLAYERS):
         # accept
         conn, addr = server_sock.accept()
-        # TODO: not thread safe
+        # TODO: lock conn_list
         conn_list.append(conn)
-        thread = threading.Thread(target = player_thread, args=[conn, words])
+        thread = threading.Thread(target = player_thread, args=[conn, words, conn_list])
         client_threads.append(thread)
         thread.start()
 
