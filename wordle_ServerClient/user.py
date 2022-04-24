@@ -6,6 +6,9 @@ from status_codes import Status
 
 class User:
     __guessNumber = 1
+    __score = 0
+    __notClose = []
+    __notRight = []
 
     
     # expects unique name for user
@@ -17,11 +20,15 @@ class User:
         self.__print_guesses = ["" for i in range(len(words))]
 
 
+    def getWord(self):
+        self.words[self.__currentWord]
+
     def makeGuess(self, guess):
         if (self.__guessNumber < 7) and (self.__currentWord < len(self.words)):
             right = []
             close = []
             word = self.words[self.__currentWord]
+            self.__resetGuessedLetters(word)
             modifiedGuess = guess
             for i in range(5): # find all correct letter
                 if(modifiedGuess[i] == word[i]):
@@ -43,6 +50,7 @@ class User:
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
             self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + format_colors(guess, right, close) + "\n"
+            self.__calculateScore()
             self.__guessNumber += 1
 
             # determine return state
@@ -71,8 +79,48 @@ class User:
         else: # caused by making guess after game is already over
             return (Status.INVALID_GUESS,)
 
-    def getScore(self):
-        return self.__calculateScore(self.__pastGuesses)
+    def __resetGuessedLetters(self, word):
+        if self.__guessNumber == 1:
+            self.__notClose = list(word)
+            self.__notRight = list(word)
 
-    def __calculateScore(self, pastGuesses):
-        return 100
+    def getScore(self):
+        return self.__score
+
+    def __calculateScore(self):
+        currentGuesses = self.__pastGuesses[self.__currentWord]
+        lastGuess = currentGuesses[-1]
+        guess = lastGuess[0]
+        correctLetters = lastGuess[1]
+        closeLetters = lastGuess[2]
+        improvedScore = 0  
+
+        if len(correctLetters) == 5: #they guessed the word
+            if len(currentGuesses) == 1:
+                improvedScore += 500
+            if len(currentGuesses) == 2:
+                improvedScore += 250
+            if len(currentGuesses) == 3:
+                improvedScore += 125 
+            if len(currentGuesses) == 4:
+                improvedScore += 75   
+            if len(currentGuesses) == 5:
+                improvedScore += 50
+
+        for letterIndex in correctLetters: # new correct letters
+            letter = guess[letterIndex]
+            if ((letter in self.__notRight) and (letter in self.__notClose)): #they were not previously yellow and not guessed
+                improvedScore += 100
+                self.__notClose.remove(letter)
+                self.__notRight.remove(letter)
+            elif (letter in self.__notRight): # they were previosuly yellow
+                improvedScore += 50
+                self.__notRight.remove(letter)
+
+        for letterIndex in closeLetters: # new close letters
+            letter = guess[letterIndex]
+            if (letter in self.__notClose): 
+                improvedScore += 25
+                self.__notClose.remove(letter)
+
+        self.__score += improvedScore
