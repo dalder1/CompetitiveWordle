@@ -8,7 +8,7 @@ from unicodedata import decimal
 from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 1
+MAX_PLAYERS = 2
 NUM_WORDS = 5
 
 def player_thread(player_sock, words, conn_list):
@@ -76,7 +76,7 @@ def player_thread(player_sock, words, conn_list):
 
                 # invalid communication
                 else:
-                    raise ValueError("Error: invalid status code from client.")
+                    raise ValueError("Error: invalid status code from client: " + str(data["status"]))
         except Exception as x:
             # print and close connection - server should keep running
             print(x)
@@ -100,9 +100,8 @@ def send_to_player(player_sock, msg):
 # takes in current player's socket and message, sends message to all players
 # except current
 def send_to_all_players(player_sock, msg, conn_list):
-    # TODO: make this use thread safe behavior
+    # TODO: may run into race condition if client removed during iteration
     for client in conn_list:
-        print("sending")
         if client != player_sock:
             client.send(msg)
 

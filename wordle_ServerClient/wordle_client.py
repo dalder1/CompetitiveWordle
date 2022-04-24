@@ -103,6 +103,9 @@ def receive(client_sock, queue, end_flag):
             elif status == Status.TERMINATE:
                 # disconnect client
                 break
+            elif status == Status.GAME_UPDATE:
+                print("another player finished\nGuess: ")
+                # TODO: store score value for when all players are done
             else:
                 # wrong status code
                 raise ValueError("Error: invalid status code in response from server.")

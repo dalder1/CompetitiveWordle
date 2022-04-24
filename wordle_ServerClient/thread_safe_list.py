@@ -29,6 +29,9 @@ class Thread_Safe_List():
         overload array access
         '''
         self.list_lock.acquire()
+        if key >= len(self.list):
+            self.list_lock.release()
+            raise IndexError('End')
         elem = self.list[key]
         self.list_lock.release()
         return elem
