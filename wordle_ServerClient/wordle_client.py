@@ -105,6 +105,7 @@ def receive(client_sock, queue, end_flag):
                 break
             elif status == Status.GAME_UPDATE:
                 print("another player finished\nGuess: ")
+                print(data['name'] + " finished with score " + str(data['score']))
                 # TODO: store score value for when all players are done
             else:
                 # wrong status code

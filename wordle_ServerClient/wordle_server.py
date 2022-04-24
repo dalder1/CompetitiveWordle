@@ -85,7 +85,7 @@ def player_thread(player_sock, words, conn_list):
             player_sock.close()
             return
     # end the game
-    print("player '" + name + "' has finished guessing")
+    print("\nplayer '" + name + "' has finished guessing")
     # TODO: lock conn_list
     conn_list.remove(player_sock)
     player_sock.close()
