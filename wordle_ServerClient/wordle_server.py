@@ -5,6 +5,7 @@ import pickle
 from user import User
 from status_codes import Status
 from unicodedata import decimal
+from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 1
@@ -99,6 +100,7 @@ def send_to_player(player_sock, msg):
 # takes in current player's socket and message, sends message to all players
 # except current
 def send_to_all_players(player_sock, msg, conn_list):
+    # TODO: make this use thread safe behavior
     for client in conn_list:
         print("sending")
         if client != player_sock:
@@ -117,7 +119,7 @@ def main():
     print(words)
 
     # --- server socket setup ---
-    conn_list = []
+    conn_list = Thread_Safe_List()
 
     # socket
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
