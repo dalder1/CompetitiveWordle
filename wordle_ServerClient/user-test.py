@@ -8,6 +8,8 @@ WORDLIST_FILE = 'wordlist.txt'
 with open(WORDLIST_FILE) as wordlistFile:
     wordlist = wordlistFile.read().splitlines() 
 words = [wordlist[random.randint(0, (len(wordlist) - 1))] for i in range (5)]
+#words[0] = "solid"
+words[0] = "sizes"
 game = User("daniel", words)
 for i in range(len(words) * 6):
     guess = input()
