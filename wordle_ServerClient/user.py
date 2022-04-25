@@ -5,12 +5,6 @@ from Format import format_colors
 from status_codes import Status
 
 class User:
-    __guessNumber = 1
-    __score = 0
-    __notClose = []
-    __notRight = []
-
-    
     # expects unique name for user
     def __init__(self, name, words):
         self.name = name
@@ -18,6 +12,10 @@ class User:
         self.__currentWord = 0
         self.__pastGuesses = [[] for i in range(len(words))]
         self.__print_guesses = ["" for i in range(len(words))]
+        self.__guessNumber = 1
+        self.__score = 0
+        self.__notClose = []
+        self.__notRight = []
 
 
     def getWord(self):
@@ -88,38 +86,44 @@ class User:
         return self.__score
 
     def __calculateScore(self):
+        # array with guesses of current word
         currentGuesses = self.__pastGuesses[self.__currentWord]
+        # get tuple (guess, right, close) representing last guess
         lastGuess = currentGuesses[-1]
         guess = lastGuess[0]
         correctLetters = lastGuess[1]
         closeLetters = lastGuess[2]
         improvedScore = 0  
 
-        if len(correctLetters) == 5: #they guessed the word
+        # they guessed the word
+        # give bonus points for which number guess they guessed it on
+        if len(correctLetters) == len(guess):
             if len(currentGuesses) == 1:
                 improvedScore += 500
-            if len(currentGuesses) == 2:
+            elif len(currentGuesses) == 2:
                 improvedScore += 250
-            if len(currentGuesses) == 3:
+            elif len(currentGuesses) == 3:
                 improvedScore += 125 
-            if len(currentGuesses) == 4:
+            elif len(currentGuesses) == 4:
                 improvedScore += 75   
-            if len(currentGuesses) == 5:
+            elif len(currentGuesses) == 5:
                 improvedScore += 50
 
         for letterIndex in correctLetters: # new correct letters
             letter = guess[letterIndex]
-            if ((letter in self.__notRight) and (letter in self.__notClose)): #they were not previously yellow and not guessed
+            
+            # they were not previously yellow and not guessed
+            if ((letter in self.__notRight) and (letter in self.__notClose)):
                 improvedScore += 100
                 self.__notClose.remove(letter)
                 self.__notRight.remove(letter)
-            elif (letter in self.__notRight): # they were previosuly yellow
+            elif (letter in self.__notRight): # they were previously yellow
                 improvedScore += 50
                 self.__notRight.remove(letter)
 
         for letterIndex in closeLetters: # new close letters
             letter = guess[letterIndex]
-            if (letter in self.__notClose): 
+            if (letter in self.__notClose):
                 improvedScore += 25
                 self.__notClose.remove(letter)
 
