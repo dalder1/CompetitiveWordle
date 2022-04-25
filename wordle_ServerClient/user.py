@@ -56,7 +56,7 @@ class User:
     
     Private Methods
     -------
-    __resetGuessedLetters(word):
+    __resetGuessedLetters():
         If it is a user's first guess for the current word it clears the current
         contents of self.__prevClose and self.__prevRight. It returns nothing 
         but self.__prevClose and self.__prevRight are updated by reference. 
@@ -87,7 +87,7 @@ class User:
             right = []
             close = []
             word = self.words[self.__currentWord]
-            self.__resetGuessedLetters(word)
+            self.__resetGuessedLetters()
             modifiedGuess = guess
             for i in range(5): # find all correct letter
                 if(modifiedGuess[i] == word[i]):
@@ -201,7 +201,6 @@ class User:
                 self.prevRight.append(letterIndex)
             prevLetters.append(letter)
 
-        prevLetters = []
         for letterIndex in closeLetters: # checking for new close letters
             letter = guessWord[letterIndex]
             if (letter not in self.prevClose):
