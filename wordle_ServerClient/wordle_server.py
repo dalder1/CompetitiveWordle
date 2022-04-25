@@ -24,6 +24,7 @@ def player_thread(player_sock, words, conn_list):
             print("player '" + name + "' joined the game")
         else:
             print("communication error")
+            conn_list.remove(player_sock)
             player_sock.close()
             return
     except Exception as x:
@@ -66,6 +67,7 @@ def player_thread(player_sock, words, conn_list):
                                 "name": name,
                                 "score": user.getScore()}
                         send_to_all_players(player_sock, pickle.dumps(broadcast), conn_list)
+                        # add user name + score to some array of users
                         break
 
                 # client quit case
@@ -87,8 +89,6 @@ def player_thread(player_sock, words, conn_list):
     # end the game
     print("\nplayer '" + name + "' has finished guessing")
     # TODO: lock conn_list
-    conn_list.remove(player_sock)
-    player_sock.close()
 
 # send_to_player
 # takes in current player's socket and message, sends message to current player
@@ -148,7 +148,15 @@ def main():
     for thread in client_threads:
         thread.join()
 
+    msg = {
+        "status": Status.FULL_GAME_COMPLETE
+        # send all users' names + scores
+    }
+
     # TODO: end the game (send scores etc)
+    send_to_all_players('', pickle.dumps(msg), conn_list)
+    for user in conn_list:
+        user.close()
 
 if __name__ == "__main__":
     main()

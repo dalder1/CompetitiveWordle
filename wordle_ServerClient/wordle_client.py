@@ -89,13 +89,12 @@ def receive(client_sock, queue, end_flag):
         data = pickle.loads(client_sock.recv(1024))
         if data:
             status = data["status"]
-            if status < Status.GAME_COMPLETE:
+            if status <= Status.GAME_COMPLETE:
                 # send to game handler
                 queue.addWork(data)
-            elif status == Status.GAME_COMPLETE:
+            elif status == Status.FULL_GAME_COMPLETE:
                 # end game
-                queue.addWork(data)
-                # TODO: don't break, keep listening for all scores - combine with above case
+                # TODO: print final scores of all players
                 break
             elif status == Status.SCORE_UPDATE:
                 # TODO: print another player's board
