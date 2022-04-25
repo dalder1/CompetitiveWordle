@@ -22,12 +22,12 @@ class User:
         the nth guess the user is on for that word indexing starting at 1 (1-7)
     __score : int
         the user's current score
-    __notClose : [char]
+    __prevClose : [char]
         list of characters for the word the user is trying to guess that have 
-        not been guessed yet at all (not yellow)
-    __notRight : int
-        list of characters for the words the user is trying to guess that have
-        not been guessed yet in the correct spot (not green)
+        been guessed but not in the correct spot, (only yellow)
+    __prevRight : [int]
+        list of indixes for the words the user is trying to guess that have
+        already been guessed in the correct spot (green)
     __currentWord : int
         index of the current word that the game is on, in relation to self.words
     __pastGuesses : [[{str, [int], [int]}]]
@@ -58,18 +58,15 @@ class User:
     -------
     __resetGuessedLetters(word):
         If it is a user's first guess for the current word it clears the current
-        contents of self.__notClose and self.__notRight and fills them with the
-        letters of the current word. It returns nothing but self.__notClose and
-        self.__notRight are updated by reference. 
+        contents of self.__prevClose and self.__prevRight. It returns nothing 
+        but self.__prevClose and self.__prevRight are updated by reference. 
     __calculateScore():
         Updates the self.__score attribute based on the most current guess made.
-        It accounts for previously guessed letters by using self.__notClose and
-        self.__notRight and accurately updates the score.  
+        It accounts for previously guessed letters by using self.__prevClose and
+        self.__prevRight and accurately updates the score.  
     """
     __guessNumber = 1
     __score = 0
-    __notClose = []
-    __notRight = []
     prevRight = []
     prevClose = []
 
@@ -106,7 +103,7 @@ class User:
             for i in range(5): # find all close letters
                 if(modifiedGuess[i] in word):
                     close.append(i)
-                    #prevent duplcates for double letters
+                    # prevent duplcates for double letters
                     word = word.replace(modifiedGuess[i], '#', 1)
 
             # append to storage arrays
@@ -148,12 +145,10 @@ class User:
         else: # caused by making guess after game is already over
             return (Status.INVALID_GUESS,)
 
-    def __resetGuessedLetters(self, word):
+    def __resetGuessedLetters(self):
         if self.__guessNumber == 1:
             self.prevRight = []
             self.prevClose = []
-            # self.__notClose = list(word)
-            # self.__notRight = list(word)
 
     def getScore(self):
         return self.__score
@@ -161,32 +156,16 @@ class User:
     def __calculateScore(self):
         currentGuesses = self.__pastGuesses[self.__currentWord]
         lastGuess = currentGuesses[-1]
-        guess = lastGuess[0]
+        guessWord = lastGuess[0]
         correctLetters = lastGuess[1]
         closeLetters = lastGuess[2]
         improvedScore = 0
-        # prevRight = []
-        # prevClose = []
-        # ourGuesses = currentGuesses[:-1]
-        # for item in ourGuesses:
-        #     greenLetters = item[1]
-        #     #TODO add to prevClose
-        #     for index in greenLetters:
-        #         if index not in prevRight:
-        #             prevRight.append(index)
-        # for item in ourGuesses:
-        #     yellowLetters = item[2]
-        #     word = item[0]
-        #     for index in yellowLetters:
-        #         if word[index] not in prevClose:
-        #             prevClose.append(word[index])
-        rightWord = list(self.getWord())
-        print(self.prevClose)
+
+        notClose = list(self.getWord())
         for letter in self.prevClose:
-            rightWord.remove(letter)
+            notClose.remove(letter)
 
-
-        if len(correctLetters) == 5: #they guessed the word
+        if len(correctLetters) == 5: # they guessed the word
             if len(currentGuesses) == 1:
                 improvedScore += 500
             if len(currentGuesses) == 2:
@@ -197,49 +176,44 @@ class User:
                 improvedScore += 75   
             if len(currentGuesses) == 5:
                 improvedScore += 50
-        for letterIndex in correctLetters:
-            letter = guess[letterIndex]
-            if ((letterIndex not in self.prevRight) and (letter not in self.prevClose)): 
-                #letter was not previously yellow and not guessed
+
+        prevLetters = []        
+        for letterIndex in correctLetters: # check for new correct letters
+            letter = guessWord[letterIndex]
+            if ((letterIndex not in self.prevRight) and 
+                                                (letter not in self.prevClose)): 
+                # letter was not previously yellow or green
                 improvedScore += 100
                 self.prevRight.append(letterIndex)
                 self.prevClose.append(letter)
+            elif ((letterIndex not in self.prevRight) and 
+                              (letter in prevLetters) and (letter in notClose)):
+                # letter was previously green but it is a duplicate, has a
+                # matching duplicate in the word to guess, and was not 
+                # previously yellow. 
+                improvedScore += 100
+                self.prevRight.append(letterIndex)
+                self.prevClose.append(letter)
+                notClose.remove(letter)
             elif (letterIndex not in self.prevRight):
+                # letter was previously yellow but not green
                 improvedScore += 50
                 self.prevRight.append(letterIndex)
-        prevLetters = []
-        for letterIndex in closeLetters:
-            letter = guess[letterIndex]
-
-            if (letter not in self.prevClose):
-                improvedScore += 25
-                self.prevClose.append(letter)
-            elif ((letter in prevLetters) and (letter in rightWord)):
-                improvedScore += 25
-                rightWord.remove(letter)
-                self.prevClose.append(letter)
             prevLetters.append(letter)
 
-        self.__score += improvedScore        
-
-        return
-        for letterIndex in correctLetters: # new correct letters
-            letter = guess[letterIndex]
-            if ((letter in self.__notRight) and (letter in self.__notClose)): 
-                #letter was not previously yellow and not guessed
-                improvedScore += 100
-                self.__notClose.remove(letter)
-                self.__notRight.remove(letter)
-            elif (letter in self.__notRight): 
-                # letter was previosuly yellow
-                improvedScore += 50
-                self.__notRight.remove(letter)
-
-        for letterIndex in closeLetters: # new close letters
-            letter = guess[letterIndex]
-            if (letter in self.__notClose):
-                #letter was not previously yellow 
+        prevLetters = []
+        for letterIndex in closeLetters: # checking for new close letters
+            letter = guessWord[letterIndex]
+            if (letter not in self.prevClose):
+                # letter was not previously yellow
                 improvedScore += 25
-                self.__notClose.remove(letter)
+                self.prevClose.append(letter)
+            elif ((letter in prevLetters) and (letter in notClose)):
+                # letter was previously yellow but is a duplicate and has a 
+                # matching dupliate in the word to guess
+                improvedScore += 25
+                notClose.remove(letter)
+                self.prevClose.append(letter)
+            prevLetters.append(letter)
 
         self.__score += improvedScore
