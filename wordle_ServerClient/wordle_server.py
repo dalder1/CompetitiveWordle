@@ -7,7 +7,7 @@ from status_codes import Status
 from unicodedata import decimal
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 1
+MAX_PLAYERS = 2
 NUM_WORDS = 5
 
 def player_thread(player_sock, words):
@@ -126,13 +126,13 @@ def main():
     for i in range(MAX_PLAYERS):
         # accept
         conn, addr = server_sock.accept()
-        # TODO: not thread safe
+        # add to list and start thread
         conn_list.append(conn)
         thread = threading.Thread(target = player_thread, args=[conn, words])
         client_threads.append(thread)
         thread.start()
 
-    # TODO: accept more connections for more players
+    # wait for all players to finish their game
     for thread in client_threads:
         thread.join()
 
