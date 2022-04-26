@@ -23,10 +23,10 @@ class User:
     __score : int
         the user's current score
     __prevClose : [char]
-        list of characters for the word the user is trying to guess that have 
-        been guessed but not in the correct spot, (only yellow)
+        list of characters (for the word the user is trying to guess) that have 
+        been guessed but not in the correct spot (only yellow)
     __prevRight : [int]
-        list of indixes for the words the user is trying to guess that have
+        list of indices (for the words the user is trying to guess) that have
         already been guessed in the correct spot (green)
     __currentWord : int
         index of the current word that the game is on, in relation to self.words
@@ -72,6 +72,9 @@ class User:
 
     
     def __init__(self, name, words):
+        '''expects the name of the user as a string and the list of words they
+           must guess. Initalizes the name, words, __currentWod, __pastGuesses,
+           and __printGuesses attributes.'''
         self.name = name
         self.words = words
         self.__currentWord = 0
@@ -80,9 +83,15 @@ class User:
 
 
     def getWord(self):
+        '''returns the word that the user is currently trying to guess'''
         return self.words[self.__currentWord]
 
     def makeGuess(self, guess):
+        '''This is the main function that facilitates playing the game. It 
+           expects a 5 letter string and processes the guess according to the 
+           rules of wordle. It also updates their score based on the guess. It
+           Returns a tuple containing a status code based on the state of the 
+           game and the formatted string to print based on the guesses made.'''
         if (self.__guessNumber < 7) and (self.__currentWord < len(self.words)):
             right = []
             close = []
@@ -146,20 +155,28 @@ class User:
             return (Status.INVALID_GUESS,)
 
     def __resetGuessedLetters(self):
+        '''If it is a user's first guess for the current word it clears the 
+           current contents of self.__prevClose and self.__prevRight. It returns
+           nothing but self.__prevClose and self.__prevRight are updated by 
+           reference.'''
         if self.__guessNumber == 1:
             self.prevRight = []
             self.prevClose = []
 
     def getScore(self):
+        '''Returns the user's current score'''
         return self.__score
 
     def __calculateScore(self):
+        '''Updates the self.__score attribute based on the most current guess 
+           made. It accounts for previously guessed letters by using 
+           self.__prevClose and self.__prevRight and accurately updates the 
+           score. '''
         currentGuesses = self.__pastGuesses[self.__currentWord]
         lastGuess = currentGuesses[-1]
         guessWord = lastGuess[0]
         correctLetters = lastGuess[1]
         closeLetters = lastGuess[2]
-        improvedScore = 0
 
         notClose = list(self.getWord())
         for letter in self.prevClose:
@@ -167,15 +184,15 @@ class User:
 
         if len(correctLetters) == 5: # they guessed the word
             if len(currentGuesses) == 1:
-                improvedScore += 500
+                self.__score += 500
             if len(currentGuesses) == 2:
-                improvedScore += 250
+                self.__score += 250
             if len(currentGuesses) == 3:
-                improvedScore += 125 
+                self.__score += 125 
             if len(currentGuesses) == 4:
-                improvedScore += 75   
+                self.__score += 75   
             if len(currentGuesses) == 5:
-                improvedScore += 50
+                self.__score += 50
 
         prevLetters = []        
         for letterIndex in correctLetters: # check for new correct letters
@@ -183,7 +200,7 @@ class User:
             if ((letterIndex not in self.prevRight) and 
                                                 (letter not in self.prevClose)): 
                 # letter was not previously yellow or green
-                improvedScore += 100
+                self.__score += 100
                 self.prevRight.append(letterIndex)
                 self.prevClose.append(letter)
             elif ((letterIndex not in self.prevRight) and 
@@ -191,13 +208,13 @@ class User:
                 # letter was previously green but it is a duplicate, has a
                 # matching duplicate in the word to guess, and was not 
                 # previously yellow. 
-                improvedScore += 100
+                self.__score += 100
                 self.prevRight.append(letterIndex)
                 self.prevClose.append(letter)
                 notClose.remove(letter)
             elif (letterIndex not in self.prevRight):
                 # letter was previously yellow but not green
-                improvedScore += 50
+                self.__score += 50
                 self.prevRight.append(letterIndex)
             prevLetters.append(letter)
 
@@ -205,14 +222,12 @@ class User:
             letter = guessWord[letterIndex]
             if (letter not in self.prevClose):
                 # letter was not previously yellow
-                improvedScore += 25
+                self.__score += 25
                 self.prevClose.append(letter)
             elif ((letter in prevLetters) and (letter in notClose)):
                 # letter was previously yellow but is a duplicate and has a 
                 # matching dupliate in the word to guess
-                improvedScore += 25
+                self.__score += 25
                 notClose.remove(letter)
                 self.prevClose.append(letter)
             prevLetters.append(letter)
-
-        self.__score += improvedScore
