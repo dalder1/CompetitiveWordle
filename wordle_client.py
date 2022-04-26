@@ -93,8 +93,10 @@ def receive(client_sock, queue, end_flag):
                 # send to game handler
                 queue.addWork(data)
             elif status == Status.FULL_GAME_COMPLETE:
-                # end game
-                # TODO: print final scores of all players
+                # game is over
+                print("\n** Final scores **")
+                for user in data['users']:
+                    print(user[0] + ": " + str(user[1]))
                 break
             elif status == Status.SCORE_UPDATE:
                 # TODO: print another player's board
@@ -103,8 +105,8 @@ def receive(client_sock, queue, end_flag):
                 # disconnect client
                 break
             elif status == Status.GAME_UPDATE:
-                print("another player finished\nGuess: ")
-                print(data['name'] + " finished with score " + str(data['score']))
+                print("\n" + data['name'] + " has finished with score " + str(data['score']))
+                print("Guess: ")
                 # TODO: store score value for when all players are done
             else:
                 # wrong status code
@@ -123,6 +125,8 @@ def main():
     end_flag = threading.Event()
 
     username = input('Enter your name to enter the game > ')
+    while (not username):
+        username = input('Please type a name > ')
 
     client_sock.connect((HOST, PORT))     
     print('Connected to the game...')

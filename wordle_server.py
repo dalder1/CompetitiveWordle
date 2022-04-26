@@ -9,9 +9,9 @@ from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 2
-NUM_WORDS = 5
+NUM_WORDS = 1
 
-def player_thread(player_sock, words, conn_list):
+def player_thread(player_sock, words, users_conns, users, index):
     # TODO: this is terrible practice
     global WORDLIST
 
@@ -55,19 +55,22 @@ def player_thread(player_sock, words, conn_list):
 
                     # make guess and form response
                     status, guesses = user.makeGuess(guess)
+                    score = user.getScore()
                     response = {"status": status,
                                 "toPrint": guesses,
-                                "score": user.getScore()}
+                                "score": score}
                     send_to_player(player_sock, pickle.dumps(response))
 
                     # check if game complete
                     if status == Status.GAME_COMPLETE:
+
                         #make msg = final score, player name
                         broadcast = {"status": Status.GAME_UPDATE,
                                 "name": name,
-                                "score": user.getScore()}
-                        send_to_all_players(player_sock, pickle.dumps(broadcast), conn_list)
+                                "score": score}
+                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
                         # add user name + score to some array of users
+                        users[index] = (name, score)
                         break
 
                 # client quit case
@@ -83,11 +86,12 @@ def player_thread(player_sock, words, conn_list):
             # print and close connection - server should keep running
             print(x)
             # TODO: lock conn_list
-            conn_list.remove(player_sock)
+            users_conns.remove(player_sock)
             player_sock.close()
             return
     # end the game
     print("\nplayer '" + name + "' has finished guessing")
+    return user.getScore()
     # TODO: lock conn_list
 
 # send_to_player
@@ -116,6 +120,7 @@ def main():
         WORDLIST = wordlistFile.read().splitlines() 
     words = [WORDLIST[random.randint(0, (len(WORDLIST) - 1))] for x in range(NUM_WORDS)]
     print(words)
+    # TODO: make sure words are unique
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
@@ -135,12 +140,13 @@ def main():
 
     # loop accepting new clients
     client_threads = []
+    users = [None for i in range(MAX_PLAYERS)]
     for i in range(MAX_PLAYERS):
         # accept
         conn, addr = server_sock.accept()
         # TODO: lock conn_list
         conn_list.append(conn)
-        thread = threading.Thread(target = player_thread, args=[conn, words, conn_list])
+        thread = threading.Thread(target = player_thread, args=[conn, words, conn_list, users, i])
         client_threads.append(thread)
         thread.start()
 
@@ -148,12 +154,14 @@ def main():
     for thread in client_threads:
         thread.join()
 
-    msg = {
-        "status": Status.FULL_GAME_COMPLETE
-        # send all users' names + scores
-    }
+    # sort users in descending order
+    users.sort(reverse=True, key=lambda tuple: tuple[1])
 
-    # TODO: end the game (send scores etc)
+    # send all users' final scores to all users
+    msg = {
+        "status": Status.FULL_GAME_COMPLETE,
+        "users": users
+    }
     send_to_all_players('', pickle.dumps(msg), conn_list)
     for user in conn_list:
         user.close()
