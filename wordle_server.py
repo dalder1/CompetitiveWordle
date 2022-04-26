@@ -9,7 +9,7 @@ from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 2
-NUM_WORDS = 1
+NUM_WORDS = 2
 
 def player_thread(player_sock, words, users_conns, users, index):
     # TODO: this is terrible practice
@@ -24,13 +24,13 @@ def player_thread(player_sock, words, users_conns, users, index):
             print("player '" + name + "' joined the game")
         else:
             print("communication error")
-            conn_list.remove(player_sock)
+            users_conns.remove(player_sock)
             player_sock.close()
             return
     except Exception as x:
         print(x.message)
-        # TODO: lock conn_list
-        conn_list.remove(player_sock)
+        # TODO: lock users_conns
+        users_conns.remove(player_sock)
         player_sock.close()
         return
 
@@ -53,25 +53,35 @@ def player_thread(player_sock, words, users_conns, users, index):
                         send_to_player(player_sock, pickle.dumps(response))
                         continue
 
-                    # make guess and form response
+                    # -- make guess and form response --
                     status, guesses = user.makeGuess(guess)
                     score = user.getScore()
                     response = {"status": status,
                                 "toPrint": guesses,
-                                "score": score}
+                                "score": str(score)}
                     send_to_player(player_sock, pickle.dumps(response))
 
-                    # check if game complete
+                    # if game complete
                     if status == Status.GAME_COMPLETE:
 
-                        #make msg = final score, player name
+                        # make msg = final score, player name
                         broadcast = {"status": Status.GAME_UPDATE,
                                 "name": name,
-                                "score": score}
+                                "score": str(score)}
+                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
+                        # add user name + score to some array of users
+                        users[index] = (name, str(score))
+                        break
+                    # if user guesses a word
+                    elif status == Status.CORRECT_GUESS:
+                        # make msg = final score, player name
+                        broadcast = {"status": Status.SCORE_UPDATE,
+                                "name": name,
+                                "score": str(score),
+                                "toPrint": guesses}
                         send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
                         # add user name + score to some array of users
                         users[index] = (name, score)
-                        break
 
                 # client quit case
                 elif data["status"] == Status.CLIENT_QUIT:
@@ -85,14 +95,12 @@ def player_thread(player_sock, words, users_conns, users, index):
         except Exception as x:
             # print and close connection - server should keep running
             print(x)
-            # TODO: lock conn_list
             users_conns.remove(player_sock)
             player_sock.close()
             return
     # end the game
     print("\nplayer '" + name + "' has finished guessing")
     return user.getScore()
-    # TODO: lock conn_list
 
 # send_to_player
 # takes in current player's socket and message, sends message to current player

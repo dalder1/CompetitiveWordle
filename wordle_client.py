@@ -53,7 +53,7 @@ def run_game(username, client_sock, queue, end_flag):
             print(prev_print)
             print("You guessed this word!")
             prev_print = "" # reset for new word
-            print("Score: " + str(response["score"]))
+            print("Your score: " + str(response["score"]))
         elif status == Status.OUT_OF_GUESSES:
             print(response["toPrint"])
             print("You're out of guesses on this word.")
@@ -101,11 +101,13 @@ def receive(client_sock, queue, end_flag):
             elif status == Status.SCORE_UPDATE:
                 # TODO: print another player's board
                 print("someone sent a board lol")
+                print(data['toPrint'])
+                print(data['name'] + "'s score: " + data['score'])
             elif status == Status.TERMINATE:
                 # disconnect client
                 break
             elif status == Status.GAME_UPDATE:
-                print("\n" + data['name'] + " has finished with score " + str(data['score']))
+                print("\n" + data['name'] + " has finished with score " + data['score'])
                 print("Guess: ")
                 # TODO: store score value for when all players are done
             else:

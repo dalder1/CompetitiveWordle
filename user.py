@@ -42,7 +42,7 @@ class User:
 
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
-            self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + format_colors(guess, right, close) + "\n"
+            self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + "\n" + format_colors(guess, right, close)
             self.__guessNumber += 1
 
             # determine return state
