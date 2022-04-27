@@ -157,11 +157,13 @@ def main():
     for i in range(MAX_PLAYERS): # TODO: start early even if there aren't MAX_PLAYERS
         # accept user connections
         conn, addr = server_sock.accept()
+        # add to list and start thread
         conn_list.append(conn)
         thread = threading.Thread(target = player_thread, args=[conn, words, conn_list, users, i])
         client_threads.append(thread)
         thread.start()
 
+    # wait for all players to finish their game
     for thread in client_threads:
         thread.join()
 
