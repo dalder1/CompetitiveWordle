@@ -29,7 +29,6 @@ def player_thread(player_sock, words, users_conns, users, index):
             return
     except Exception as x:
         print(x.message)
-        # TODO: lock users_conns
         users_conns.remove(player_sock)
         player_sock.close()
         return
@@ -150,9 +149,8 @@ def main():
     client_threads = []
     users = [None for i in range(MAX_PLAYERS)]
     for i in range(MAX_PLAYERS):
-        # accept
+        # accept user connections
         conn, addr = server_sock.accept()
-        # TODO: lock conn_list
         conn_list.append(conn)
         thread = threading.Thread(target = player_thread, args=[conn, words, conn_list, users, i])
         client_threads.append(thread)

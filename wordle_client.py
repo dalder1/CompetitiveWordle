@@ -99,8 +99,6 @@ def receive(client_sock, queue, end_flag):
                     print(user[0] + ": " + str(user[1]))
                 break
             elif status == Status.SCORE_UPDATE:
-                # TODO: print another player's board
-                print("someone sent a board lol")
                 print(data['toPrint'])
                 print(data['name'] + "'s score: " + data['score'])
             elif status == Status.TERMINATE:
@@ -109,7 +107,6 @@ def receive(client_sock, queue, end_flag):
             elif status == Status.GAME_UPDATE:
                 print("\n" + data['name'] + " has finished with score " + data['score'])
                 print("Guess: ")
-                # TODO: store score value for when all players are done
             else:
                 # wrong status code
                 raise ValueError("Error: invalid status code in response from server.")
