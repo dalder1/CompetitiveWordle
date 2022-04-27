@@ -5,13 +5,16 @@ import pickle
 from user import User
 from status_codes import Status
 from unicodedata import decimal
+from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 2
+MAX_PLAYERS = 3 # TODO: take max players on input in server
 NUM_WORDS = 5
 
-def player_thread(player_sock, words):
-    # TODO: this is terrible practice
+# TODO: implement Ctrl-C handler
+
+def player_thread(player_sock, words, users_conns, users, index):
+    # this is terrible practice lol oops :( sorry
     global WORDLIST
 
     # get player's name
@@ -23,10 +26,12 @@ def player_thread(player_sock, words):
             print("player '" + name + "' joined the game")
         else:
             print("communication error")
+            users_conns.remove(player_sock)
             player_sock.close()
             return
     except Exception as x:
         print(x.message)
+        users_conns.remove(player_sock)
         player_sock.close()
         return
 
@@ -49,16 +54,38 @@ def player_thread(player_sock, words):
                         send_to_player(player_sock, pickle.dumps(response))
                         continue
 
-                    # make guess and form response
+                    # -- get current word, make guess, and form response --
+                    word = user.getCurrWord()
                     status, guesses = user.makeGuess(guess)
+                    score = user.getScore()
+
                     response = {"status": status,
                                 "toPrint": guesses,
-                                "score": user.getScore()}
+                                "score": str(score),
+                                "word": word}
                     send_to_player(player_sock, pickle.dumps(response))
 
-                    # check if game complete
+                    # if game complete
                     if status == Status.GAME_COMPLETE:
+
+                        # make msg = final score, player name
+                        broadcast = {"status": Status.GAME_UPDATE,
+                                "name": name,
+                                "score": str(score)}
+                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
+                        # add user name + score to some array of users
+                        users[index] = (name, str(score))
                         break
+                    # if user guesses a word
+                    elif status == Status.CORRECT_GUESS or status == Status.OUT_OF_GUESSES:
+                        # make msg = final score, player name
+                        broadcast = {"status": Status.SCORE_UPDATE,
+                                "name": name,
+                                "score": str(score),
+                                "toPrint": guesses}
+                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
+                        # add user name + score to some array of users
+                        users[index] = (name, score)
 
                 # client quit case
                 elif data["status"] == Status.CLIENT_QUIT:
@@ -68,15 +95,16 @@ def player_thread(player_sock, words):
 
                 # invalid communication
                 else:
-                    raise ValueError("Error: invalid status code from client.")
+                    raise ValueError("Error: invalid status code from client: " + str(data["status"]))
         except Exception as x:
             # print and close connection - server should keep running
             print(x)
+            users_conns.remove(player_sock)
             player_sock.close()
             return
     # end the game
-    print("player '" + name + "' has finished guessing")
-    player_sock.close()
+    print("\nplayer '" + name + "' has finished guessing")
+    return user.getScore()
 
 # send_to_player
 # takes in current player's socket and message, sends message to current player
@@ -87,9 +115,9 @@ def send_to_player(player_sock, msg):
 # send_to_all_players
 # takes in current player's socket and message, sends message to all players
 # except current
-def send_to_all_players(player_sock, msg):
+def send_to_all_players(player_sock, msg, conn_list):
+    # TODO: may run into race condition if client removed during iteration
     for client in conn_list:
-        print("sending")
         if client != player_sock:
             client.send(msg)
 
@@ -101,12 +129,14 @@ def main():
     # --- choose starting word ---
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
-        WORDLIST = wordlistFile.read().splitlines() 
-    words = [WORDLIST[random.randint(0, (len(WORDLIST) - 1))] for x in range(NUM_WORDS)]
+        WORDLIST = wordlistFile.read().splitlines()
+
+    # get unique list of words
+    words = random.sample(WORDLIST, NUM_WORDS)
     print(words)
 
     # --- server socket setup ---
-    conn_list = []
+    conn_list = Thread_Safe_List()
 
     # socket
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -123,12 +153,13 @@ def main():
 
     # loop accepting new clients
     client_threads = []
-    for i in range(MAX_PLAYERS):
-        # accept
+    users = [None for i in range(MAX_PLAYERS)]
+    for i in range(MAX_PLAYERS): # TODO: start early even if there aren't MAX_PLAYERS
+        # accept user connections
         conn, addr = server_sock.accept()
         # add to list and start thread
         conn_list.append(conn)
-        thread = threading.Thread(target = player_thread, args=[conn, words])
+        thread = threading.Thread(target = player_thread, args=[conn, words, conn_list, users, i])
         client_threads.append(thread)
         thread.start()
 
@@ -136,7 +167,17 @@ def main():
     for thread in client_threads:
         thread.join()
 
-    # TODO: end the game (send scores etc)
+    # sort users in descending order
+    users.sort(reverse=True, key=lambda tuple: tuple[1])
+
+    # send all users' final scores to all users
+    msg = {
+        "status": Status.FULL_GAME_COMPLETE,
+        "users": users
+    }
+    send_to_all_players('', pickle.dumps(msg), conn_list)
+    for user in conn_list:
+        user.close()
 
 if __name__ == "__main__":
     main()
