@@ -8,8 +8,10 @@ from unicodedata import decimal
 from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 2
+MAX_PLAYERS = 3 # TODO: take max players on input in server
 NUM_WORDS = 5
+
+# TODO: implement Ctrl-C handler
 
 def player_thread(player_sock, words, users_conns, users, index):
     # this is terrible practice lol oops :( sorry
@@ -52,12 +54,15 @@ def player_thread(player_sock, words, users_conns, users, index):
                         send_to_player(player_sock, pickle.dumps(response))
                         continue
 
-                    # -- make guess and form response --
+                    # -- get current word, make guess, and form response --
+                    word = user.getCurrWord()
                     status, guesses = user.makeGuess(guess)
                     score = user.getScore()
+
                     response = {"status": status,
                                 "toPrint": guesses,
-                                "score": str(score)}
+                                "score": str(score),
+                                "word": word}
                     send_to_player(player_sock, pickle.dumps(response))
 
                     # if game complete
@@ -72,7 +77,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                         users[index] = (name, str(score))
                         break
                     # if user guesses a word
-                    elif status == Status.CORRECT_GUESS:
+                    elif status == Status.CORRECT_GUESS or status == Status.OUT_OF_GUESSES:
                         # make msg = final score, player name
                         broadcast = {"status": Status.SCORE_UPDATE,
                                 "name": name,
@@ -125,9 +130,10 @@ def main():
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
         WORDLIST = wordlistFile.read().splitlines()
-    
+
     # get unique list of words
     words = random.sample(WORDLIST, NUM_WORDS)
+    print(words)
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
@@ -148,7 +154,7 @@ def main():
     # loop accepting new clients
     client_threads = []
     users = [None for i in range(MAX_PLAYERS)]
-    for i in range(MAX_PLAYERS):
+    for i in range(MAX_PLAYERS): # TODO: start early even if there aren't MAX_PLAYERS
         # accept user connections
         conn, addr = server_sock.accept()
         conn_list.append(conn)
@@ -156,7 +162,6 @@ def main():
         client_threads.append(thread)
         thread.start()
 
-    # TODO: accept more connections for more players
     for thread in client_threads:
         thread.join()
 

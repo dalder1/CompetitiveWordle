@@ -74,5 +74,8 @@ class User:
     def getScore(self):
         return self.__calculateScore(self.__pastGuesses)
 
+    def getCurrWord(self):
+        return self.words[self.__currentWord]
+
     def __calculateScore(self, pastGuesses):
         return 100

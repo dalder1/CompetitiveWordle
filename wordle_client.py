@@ -26,6 +26,7 @@ def run_game(username, client_sock, queue, end_flag):
         guess = input("Guess: ")
 
         # check if client is quitting
+        # TODO: fix error when user quits in middle of game
         if guess == "quit":
             end_flag.set()
             print("goodbye!")
@@ -56,12 +57,13 @@ def run_game(username, client_sock, queue, end_flag):
             print("Your score: " + str(response["score"]))
         elif status == Status.OUT_OF_GUESSES:
             print(response["toPrint"])
-            print("You're out of guesses on this word.")
+            print("You're out of guesses on this word. The word was " \
+                + response['word'])
             prev_print = "" # reset for new word
             print("Score: " + str(response["score"]))
         elif status == Status.GAME_COMPLETE:
             print(response["toPrint"])
-            print("You've finished guessing every word!")
+            print("You've gotten through every word.")
             print("Your final score: " + str(response["score"]))
             break
         elif status == Status.INVALID_GUESS:
