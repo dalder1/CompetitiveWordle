@@ -9,10 +9,10 @@ from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 MAX_PLAYERS = 2
-NUM_WORDS = 2
+NUM_WORDS = 5
 
 def player_thread(player_sock, words, users_conns, users, index):
-    # TODO: this is terrible practice
+    # this is terrible practice lol oops :( sorry
     global WORDLIST
 
     # get player's name
@@ -124,10 +124,10 @@ def main():
     # --- choose starting word ---
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
-        WORDLIST = wordlistFile.read().splitlines() 
-    words = [WORDLIST[random.randint(0, (len(WORDLIST) - 1))] for x in range(NUM_WORDS)]
-    print(words)
-    # TODO: make sure words are unique
+        WORDLIST = wordlistFile.read().splitlines()
+    
+    # get unique list of words
+    words = random.sample(WORDLIST, NUM_WORDS)
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
