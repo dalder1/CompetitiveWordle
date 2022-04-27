@@ -26,6 +26,7 @@ def run_game(username, client_sock, queue, end_flag):
         guess = input("Guess: ")
 
         # check if client is quitting
+        # TODO: fix error when user quits in middle of game
         if guess == "quit":
             end_flag.set()
             print("goodbye!")
@@ -53,15 +54,16 @@ def run_game(username, client_sock, queue, end_flag):
             print(prev_print)
             print("You guessed this word!")
             prev_print = "" # reset for new word
-            print("Score: " + str(response["score"]))
+            print("Your score: " + str(response["score"]))
         elif status == Status.OUT_OF_GUESSES:
             print(response["toPrint"])
-            print("You're out of guesses on this word.")
+            print("You're out of guesses on this word. The word was " \
+                + response['word'])
             prev_print = "" # reset for new word
             print("Score: " + str(response["score"]))
         elif status == Status.GAME_COMPLETE:
             print(response["toPrint"])
-            print("You've finished guessing every word!")
+            print("You've gotten through every word.")
             print("Your final score: " + str(response["score"]))
             break
         elif status == Status.INVALID_GUESS:
@@ -89,20 +91,24 @@ def receive(client_sock, queue, end_flag):
         data = pickle.loads(client_sock.recv(1024))
         if data:
             status = data["status"]
-            if status < Status.GAME_COMPLETE:
+            if status <= Status.GAME_COMPLETE:
                 # send to game handler
                 queue.addWork(data)
-            elif status == Status.GAME_COMPLETE:
-                # end game
-                queue.addWork(data)
-                # TODO: don't break, keep listening for all scores - combine with above case
+            elif status == Status.FULL_GAME_COMPLETE:
+                # game is over
+                print("\n** Final scores **")
+                for user in data['users']:
+                    print(user[0] + ": " + str(user[1]))
                 break
             elif status == Status.SCORE_UPDATE:
-                # TODO: print another player's board
-                print("someone sent a board lol")
+                print(data['toPrint'])
+                print(data['name'] + "'s score: " + data['score'])
             elif status == Status.TERMINATE:
                 # disconnect client
                 break
+            elif status == Status.GAME_UPDATE:
+                print("\n" + data['name'] + " has finished with score " + data['score'])
+                print("Guess: ")
             else:
                 # wrong status code
                 raise ValueError("Error: invalid status code in response from server.")
@@ -120,6 +126,8 @@ def main():
     end_flag = threading.Event()
 
     username = input('Enter your name to enter the game > ')
+    while (not username):
+        username = input('Please type a name > ')
 
     client_sock.connect((HOST, PORT))     
     print('Connected to the game...')
