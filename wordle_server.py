@@ -2,17 +2,15 @@
 import random
 import socket, threading
 import pickle
+
 from user import User
 from status_codes import Status
-from unicodedata import decimal
 from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 WORDLIST = []
 MAX_PLAYERS = 3
 NUM_WORDS = 5
-
-# TODO: implement Ctrl-C handler
 
 def player_thread(player_sock, words, users_conns, users, index):
     # get player's name
