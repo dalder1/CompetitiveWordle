@@ -26,7 +26,6 @@ def run_game(username, client_sock, queue, end_flag):
         guess = input("Guess: ")
 
         # check if client is quitting
-        # TODO: fix error when user quits in middle of game
         if guess == "quit":
             end_flag.set()
             print("goodbye!")
