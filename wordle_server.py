@@ -8,15 +8,13 @@ from unicodedata import decimal
 from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 3 # TODO: take max players on input in server
+WORDLIST = []
+MAX_PLAYERS = 3
 NUM_WORDS = 5
 
 # TODO: implement Ctrl-C handler
 
 def player_thread(player_sock, words, users_conns, users, index):
-    # this is terrible practice lol oops :( sorry
-    global WORDLIST
-
     # get player's name
     name = ""
     try:
@@ -128,7 +126,16 @@ def send_to_all_players(player_sock, msg, conn_list):
 # main
 # main function: initializes server and calls game logic
 def main():
+    global MAX_PLAYERS
     global WORDLIST
+    global NUM_WORDS
+
+    # --- game starter can customize game ---
+    MAX_PLAYERS = int(input("How many players will be playing? "))
+
+    NUM_WORDS = int(input("How many words do you want? "))
+
+
     # --- choose starting word ---
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
@@ -157,7 +164,7 @@ def main():
     # loop accepting new clients
     client_threads = []
     users = [None for i in range(MAX_PLAYERS)]
-    for i in range(MAX_PLAYERS): # TODO: start early even if there aren't MAX_PLAYERS
+    for i in range(MAX_PLAYERS):
         # accept user connections
         conn, addr = server_sock.accept()
         # add to list and start thread
