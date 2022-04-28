@@ -2,21 +2,17 @@
 import random
 import socket, threading
 import pickle
+
 from user import User
 from status_codes import Status
-from unicodedata import decimal
 from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
-MAX_PLAYERS = 3 # TODO: take max players on input in server
+WORDLIST = []
+MAX_PLAYERS = 3
 NUM_WORDS = 5
 
-# TODO: implement Ctrl-C handler
-
 def player_thread(player_sock, words, users_conns, users, index):
-    # this is terrible practice lol oops :( sorry
-    global WORDLIST
-
     # get player's name
     name = ""
     try:
@@ -74,7 +70,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                                 "score": str(score)}
                         send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
                         # add user name + score to some array of users
-                        users[index] = (name, str(score))
+                        users[index] = (name, score)
                         break
                     # if user guesses a word
                     elif status == Status.CORRECT_GUESS or status == Status.OUT_OF_GUESSES:
@@ -91,14 +87,17 @@ def player_thread(player_sock, words, users_conns, users, index):
                 elif data["status"] == Status.CLIENT_QUIT:
                     print("client disconnected")
                     send_to_player(player_sock, pickle.dumps({"status": Status.TERMINATE}))
+                    users_conns.remove(player_sock)
+                    player_sock.close()
+                    users[index] = (name, 0)
                     return
 
                 # invalid communication
                 else:
                     raise ValueError("Error: invalid status code from client: " + str(data["status"]))
-        except Exception as x:
+        except Exception as err:
             # print and close connection - server should keep running
-            print(x)
+            print(err)
             users_conns.remove(player_sock)
             player_sock.close()
             return
@@ -125,7 +124,16 @@ def send_to_all_players(player_sock, msg, conn_list):
 # main
 # main function: initializes server and calls game logic
 def main():
+    global MAX_PLAYERS
     global WORDLIST
+    global NUM_WORDS
+
+    # --- game starter can customize game ---
+    MAX_PLAYERS = int(input("How many players will be playing? "))
+
+    NUM_WORDS = int(input("How many words do you want? "))
+
+
     # --- choose starting word ---
     # get list of words for the whole game
     with open(WORDLIST_FILE) as wordlistFile:
@@ -154,7 +162,7 @@ def main():
     # loop accepting new clients
     client_threads = []
     users = [None for i in range(MAX_PLAYERS)]
-    for i in range(MAX_PLAYERS): # TODO: start early even if there aren't MAX_PLAYERS
+    for i in range(MAX_PLAYERS):
         # accept user connections
         conn, addr = server_sock.accept()
         # add to list and start thread
@@ -182,4 +190,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-    exit(0) 
+    exit(0)
