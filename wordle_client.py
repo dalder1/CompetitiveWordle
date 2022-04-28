@@ -5,7 +5,7 @@ import socket, threading
 from workQueue import WorkQueue
 from status_codes import Status
 
-# one thread that handles game, one thread that does all listening
+# --- one thread that handles game, one thread that does all listening ---
 
 def run_game(username, client_sock, queue, end_flag):
     """
@@ -26,7 +26,7 @@ def run_game(username, client_sock, queue, end_flag):
         guess = input("Guess: ")
 
         # check if client is quitting
-        if guess == "quit":
+        if guess == "quit" or guess == "q":
             end_flag.set()
             print("goodbye!")
             client_sock.send(pickle.dumps({"status": Status.CLIENT_QUIT}))
