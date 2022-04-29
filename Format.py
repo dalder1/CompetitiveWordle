@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 ###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
 ### CS 21 Concurrent Programming
 ### Spring 2022
 ### Project: Wordle with Friends
-### format.py:
+### Format.py:
 ###     Format function to format words for printing
 ###     by printing correct letters (correct letter, correct position) green,
 ###     semi-correct letters (correct letter, incorrect position) yellow,

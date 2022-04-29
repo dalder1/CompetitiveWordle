@@ -1,7 +1,15 @@
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### user-test.py:
+###     Tests the User class
+###
+
 import random
 from user import User
 from status_codes import Status
-
 
 WORDLIST_FILE = 'wordlist.txt'
 

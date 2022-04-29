@@ -5,7 +5,7 @@
 ### Spring 2022
 ### Project: Wordle with Friends
 ### format-test.py:
-###     Test Format class
+###     Tests the Format class
 ### 
 
 from format import format_colors

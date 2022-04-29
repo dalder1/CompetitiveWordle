@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
+
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### wordle_client.py:
+###     Implements the client for the Wordle game
+### 
+
 import pickle
 import socket, threading
 
-from workQueue import WorkQueue
+from WorkQueue import WorkQueue
 from status_codes import Status
 
 # --- one thread that handles game, one thread that does all listening ---

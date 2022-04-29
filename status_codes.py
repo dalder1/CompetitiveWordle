@@ -1,3 +1,12 @@
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### status_codes.py:
+###     Contains status codes for messages sent between our server and client
+### 
+
 from enum import IntEnum, unique
 
 @unique

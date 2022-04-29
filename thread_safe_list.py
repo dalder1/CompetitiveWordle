@@ -1,3 +1,13 @@
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### Thread_Safe_List.py:
+###     Tread_Safe_List class implements a thread safe list. Contains functions
+###     to append and remove from the list.
+### 
+
 import threading
 
 class Thread_Safe_List():
