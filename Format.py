@@ -38,18 +38,21 @@ def format_colors(word, correct, semi_correct):
     """
 
     if (len(correct) > len(word) or len(semi_correct) > len(word)):
-        raise ValueError("Error: Incorrect number of correct or semi-correct letters.")
+        raise ValueError("Error: Incorrect number of correct or semi-correct" + 
+                                                                    " letters.")
     
     # string to array to store info for each letter
     print_arr = list(word)
 
     # format letter if correct
     for i in correct:
-        print_arr[i] = colors[CORRECT_COLOR] + print_arr[i] + colors[RESET_COLOR]
+        print_arr[i] = (colors[CORRECT_COLOR] + print_arr[i] + 
+                                                            colors[RESET_COLOR])
     
     # format letter if semi-correct
     for i in semi_correct:
-        print_arr[i] = colors[SEMI_CORRECT_COLOR] + print_arr[i] + colors[RESET_COLOR]
+        print_arr[i] = (colors[SEMI_CORRECT_COLOR] + print_arr[i] + 
+                                                            colors[RESET_COLOR])
 
     # array to string to return string
     print_string = ''.join(map(str, print_arr))

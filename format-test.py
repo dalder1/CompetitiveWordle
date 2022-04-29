@@ -9,7 +9,7 @@
 ###     Tests the Format class
 ### 
 
-from format import format_colors
+from Format import format_colors
 
 def equal(got, expected):
     """ check if two things are equal """
@@ -47,7 +47,8 @@ def test_format():
                         '\033[32mp\033[0mar\033[32mt\033[0my',
                         WORD, [0, 3], [])
     __test_print_helper('all correct',
-                        '\033[32mp\033[0m\033[32ma\033[0m\033[32mr\033[0m\033[32mt\033[0m\033[32my\033[0m',
+                        ('\033[32mp\033[0m\033[32ma\033[0m\033[32mr\033[0m\033'
+                        + '[32mt\033[0m\033[32my\033[0m'),
                         WORD, [0, 1, 2, 3, 4], [])
     __test_print_helper('first letter semi-correct',
                         '\033[93mp\033[0marty',
@@ -56,12 +57,14 @@ def test_format():
                         '\033[93mp\033[0ma\033[93mr\033[0mty',
                         WORD, [], [0, 2])
     __test_print_helper('all semi-correct',
-                        '\033[93mp\033[0m\033[93ma\033[0m\033[93mr\033[0m\033[93mt\033[0m\033[93my\033[0m',
+                        ('\033[93mp\033[0m\033[93ma\033[0m\033[93mr\033[0m\033'
+                        + '[93mt\033[0m\033[93my\033[0m'),
                         WORD, [], [0, 1, 2, 3, 4])
 
 def __test_error_helper(description, WORD, correct, semi_correct):
     """ helper function for error tests """
-    print(f'Testing correct: {correct}, semi-correct: {semi_correct} %s' % description)
+    print(f'Testing correct: {correct}, semi-correct: {semi_correct} %s' % 
+                                                                    description)
 
     try:
         format_colors(WORD, correct, semi_correct)

@@ -12,7 +12,7 @@
 import pickle
 import socket, threading
 
-from WorkQueue import WorkQueue
+from workQueue import WorkQueue
 from status_codes import Status
 
 # --- one thread that handles game, one thread that does all listening ---
@@ -116,11 +116,13 @@ def receive(client_sock, queue, end_flag):
                 # disconnect client
                 break
             elif status == Status.GAME_UPDATE:
-                print("\n" + data['name'] + " has finished with score " + data['score'])
+                print("\n" + data['name'] + " has finished with score " + 
+                                                                  data['score'])
                 print("Guess: ")
             else:
                 # wrong status code
-                raise ValueError("Error: invalid status code in response from server.")
+                raise ValueError("Error: invalid status code in response " + 
+                                                                 "from server.")
 
 def main():
     # socket
@@ -142,14 +144,17 @@ def main():
     print('Connected to the game...')
 
     # send name
-    client_sock.send(pickle.dumps({"status": Status.CLIENT_NAME, "name": username}))
+    client_sock.send(pickle.dumps({"status": Status.CLIENT_NAME, "name": 
+                                                                     username}))
 
     # start receiver
-    thread_receive = threading.Thread(target = receive, args=[client_sock, queue, end_flag])
+    thread_receive = threading.Thread(target = receive, args=[client_sock, 
+                                                               queue, end_flag])
     thread_receive.start()
 
     # start listener
-    thread_send = threading.Thread(target = run_game, args=[username, client_sock, queue, end_flag])
+    thread_send = threading.Thread(target = run_game, args=[username, 
+                                                  client_sock, queue, end_flag])
     thread_send.start()
 
     # join both

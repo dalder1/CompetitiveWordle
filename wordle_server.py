@@ -13,9 +13,9 @@ import random
 import socket, threading
 import pickle
 
-from User import User
+from user import User
 from status_codes import Status
-from Thread_Safe_List import Thread_Safe_List
+from thread_safe_list import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 WORDLIST = []
@@ -61,7 +61,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                         continue
 
                     # -- get current word, make guess, and form response --
-                    word = user.getCurrWord()
+                    word = user.getWord()
                     status, guesses = user.makeGuess(guess)
                     score = user.getScore()
 
@@ -78,25 +78,29 @@ def player_thread(player_sock, words, users_conns, users, index):
                         broadcast = {"status": Status.GAME_UPDATE,
                                 "name": name,
                                 "score": str(score)}
-                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
+                        send_to_all_players(player_sock, 
+                                           pickle.dumps(broadcast), users_conns)
                         # add user name + score to some array of users
                         users[index] = (name, score)
                         break
                     # if user guesses a word
-                    elif status == Status.CORRECT_GUESS or status == Status.OUT_OF_GUESSES:
+                    elif (status == Status.CORRECT_GUESS or 
+                                               status == Status.OUT_OF_GUESSES):
                         # make msg = final score, player name
                         broadcast = {"status": Status.SCORE_UPDATE,
                                 "name": name,
                                 "score": str(score),
                                 "toPrint": guesses}
-                        send_to_all_players(player_sock, pickle.dumps(broadcast), users_conns)
+                        send_to_all_players(player_sock, 
+                                           pickle.dumps(broadcast), users_conns)
                         # add user name + score to some array of users
                         users[index] = (name, score)
 
                 # client quit case
                 elif data["status"] == Status.CLIENT_QUIT:
                     print("client disconnected")
-                    send_to_player(player_sock, pickle.dumps({"status": Status.TERMINATE}))
+                    send_to_player(player_sock, pickle.dumps({"status": 
+                                                             Status.TERMINATE}))
                     users_conns.remove(player_sock)
                     player_sock.close()
                     users[index] = (name, 0)
@@ -104,7 +108,8 @@ def player_thread(player_sock, words, users_conns, users, index):
 
                 # invalid communication
                 else:
-                    raise ValueError("Error: invalid status code from client: " + str(data["status"]))
+                    raise ValueError("Error: invalid status code from client: "
+                                                          + str(data["status"]))
         except Exception as err:
             # print and close connection - server should keep running
             print(err)
@@ -177,7 +182,8 @@ def main():
         conn, addr = server_sock.accept()
         # add to list and start thread
         conn_list.append(conn)
-        thread = threading.Thread(target = player_thread, args=[conn, words, conn_list, users, i])
+        thread = threading.Thread(target = player_thread, 
+                                        args=[conn, words, conn_list, users, i])
         client_threads.append(thread)
         thread.start()
 
