@@ -21,9 +21,10 @@ you how many players will be playing, and how many words you want to guess for
 the game. Then in separate terminal windows each player can join the game by 
 running `python3 wordle_client.py`. It will prompt you to enter your name, and 
 then you can start guessing words. Each user will see their own previous 
-guesses, and they'll also receive updates when other users guess words. To end 
-the game they can either run out of guesses, guess all the words, or enter the 
-keyword “quit” or “q”. 
+guesses, and they'll also receive updates when other users guess words. The game
+ends when all users have gone through all the words (either guessing them
+correctly or running out of guesses), or if all users quit the game. A user can
+quit by typing “quit” or “q”. 
 
 
 ## Overview of Files
