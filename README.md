@@ -2,7 +2,8 @@
 
 ## What is Wordle?
 [Wordle](https://www.nytimes.com/games/wordle/index.html) is a game created by
-Josh Wardle. It's like [Mastermind](https://en.wikipedia.org/wiki/Mastermind_(board_game))
+Josh Wardle. It's like 
+[Mastermind](https://en.wikipedia.org/wiki/Mastermind_(board_game))
 but instead of guessing an opponent's colors, the single player guesses a five
 letter word. Green etters are correct (correct letter and correct position), and
 yellow letters are semi-correct (correct letter but incorrect position).
@@ -14,13 +15,16 @@ efficiency means in fewer guesses than opponents and with more
 correct/semi-correct letters in previous guesses.
 
 ## Start a game
-To start a game, first run `python3 wordle_server.py`. This starts the server
-for the game. It will ask you how many players will be playing, and how many
-words you want to guess for the game.
-Each player can join the game by running `python3 wordle_client.py`. It will
-prompt you to enter your name, and then you can start guessing words. Each user
-will see their own previous guesses, and they'll also receive updates when other
-users guess words.
+To run the game all players must be on the same computer. To start a game, first
+run `python3 wordle_server.py`. This starts the server for the game. It will ask
+you how many players will be playing, and how many words you want to guess for 
+the game. Then in separate terminal windows each player can join the game by 
+running `python3 wordle_client.py`. It will prompt you to enter your name, and 
+then you can start guessing words. Each user will see their own previous 
+guesses, and they'll also receive updates when other users guess words. To end 
+the game they can either run out of guesses, guess all the words, or enter the 
+keyword “quit” or “q”. 
+
 
 ## Overview of Files
 
@@ -60,7 +64,7 @@ functions to append to the list and remove from the list, which behave like
 `list.append` and `list.remove` in Python, but are thread safe.
 
 `Format.py`
-- Contains a function for creating an ANSI-code formatted string(terminology?).
+- Contains a function for creating an ANSI-code formatted string.
 The string is formatted to print colors for correct and semi-correct letters.
 
 `*-test.py`
