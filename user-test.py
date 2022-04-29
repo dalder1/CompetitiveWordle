@@ -8,10 +8,10 @@ WORDLIST_FILE = 'wordlist.txt'
 with open(WORDLIST_FILE) as wordlistFile:
     wordlist = wordlistFile.read().splitlines() 
 words = [wordlist[random.randint(0, (len(wordlist) - 1))] for i in range (5)]
-print(words)
 game = User("daniel", words)
 for i in range(len(words) * 6):
     guess = input()
+    correctWord = game.getWord()
     response = game.makeGuess(guess)
     status = response[0]
     prev_print = response[1]
@@ -26,7 +26,7 @@ for i in range(len(words) * 6):
         print("Score: " + str(score))
     elif status == Status.OUT_OF_GUESSES:
         print("You're out of guesses on this word.")
-        print(game.getWord())
+        print(correctWord)
         prev_print = "" # reset for new word
         print("Score: " + str(score))
     elif status == Status.GAME_COMPLETE:
