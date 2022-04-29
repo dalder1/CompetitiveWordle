@@ -71,7 +71,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                                 "word": word}
                     send_to_player(player_sock, pickle.dumps(response))
 
-                    # if game complete
+                    # if game complete, i.e., if user guesses all words
                     if status == Status.GAME_COMPLETE:
 
                         # make msg = final score, player name
@@ -80,7 +80,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                                 "score": str(score)}
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
-                        # add user name + score to some array of users
+                        # add user name + score to array of users
                         users[index] = (name, score)
                         break
                     # if user guesses a word
@@ -90,10 +90,10 @@ def player_thread(player_sock, words, users_conns, users, index):
                         broadcast = {"status": Status.SCORE_UPDATE,
                                 "name": name,
                                 "score": str(score),
-                                "toPrint": guesses}
+                                "toPrint": name + " is moving onto the next word!"}
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
-                        # add user name + score to some array of users
+                        # add user name + score to array of users
                         users[index] = (name, score)
 
                 # client quit case
@@ -103,6 +103,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                                                              Status.TERMINATE}))
                     users_conns.remove(player_sock)
                     player_sock.close()
+                    # user gets a score of 0 b/c the user quit the game
                     users[index] = (name, 0)
                     return
 
