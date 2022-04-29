@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
+
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### wordle_server.py:
+###     Implements the server for the Wordle game
+###
+
 import random
 import socket, threading
 import pickle
 
-from user import User
+from User import User
 from status_codes import Status
-from thread_safe_list import Thread_Safe_List
+from Thread_Safe_List import Thread_Safe_List
 
 WORDLIST_FILE = 'wordlist.txt'
 WORDLIST = []

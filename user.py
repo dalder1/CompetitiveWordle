@@ -1,4 +1,10 @@
-# Contains class that tracks state of player in wordle game and their score
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### User.py:
+###     User class tracks state of player in Wordle game and their score
 
 from Format import format_colors
 from status_codes import Status

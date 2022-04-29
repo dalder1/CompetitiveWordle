@@ -1,8 +1,11 @@
-# Author: Ethan Schreiber
-# Date: 3/8/22
-# Course: CS21 Concurrency
-# workQueue.py:
-#   implementation of a work queue utilizing condition objects
+###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
+### CS 21 Concurrent Programming
+### Spring 2022
+### Project: Wordle with Friends
+### WorkQueue.py:
+###     Implementation of a work queue utilizing condition objects
+###
 
 import threading
 
