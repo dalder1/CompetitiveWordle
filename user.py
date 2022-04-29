@@ -123,7 +123,9 @@ class User:
 
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
-            self.__print_guesses[self.__currentWord] = self.__print_guesses[self.__currentWord] + "\n" + format_colors(guess, right, close)
+            self.__print_guesses[self.__currentWord] = (
+                                    self.__print_guesses[self.__currentWord] + 
+                                    "\n" + format_colors(guess, right, close))
             self.__calculateScore()
             self.__guessNumber += 1
 
@@ -142,7 +144,7 @@ class User:
                                       self.__printGuesses[self.__currentWord-1])
             # game complete on wrong guess
             elif ((self.__guessNumber == 7) and 
-                                   (self.__currentWord >= (len(self.words) -1))):
+                                  (self.__currentWord >= (len(self.words) -1))):
                 return (Status.GAME_COMPLETE, 
                                         self.__printGuesses[self.__currentWord])
             # word complete on wrong guess
@@ -202,7 +204,7 @@ class User:
         for letterIndex in correctLetters: # check for new correct letters
             letter = guessWord[letterIndex]
             if ((letterIndex not in self.prevRight) and 
-                                                (letter not in self.prevClose)): 
+                                                (letter not in self.prevClose)):
                 # letter was not previously yellow or green
                 self.__score += 100
                 self.prevRight.append(letterIndex)

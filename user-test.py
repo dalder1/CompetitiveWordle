@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ###
 ### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
 ### CS 21 Concurrent Programming
@@ -13,6 +15,8 @@ from status_codes import Status
 
 WORDLIST_FILE = 'wordlist.txt'
 
+# starts a game for one player with 5 words to guess. Allows for testing user
+# class without client or server. 
 with open(WORDLIST_FILE) as wordlistFile:
     wordlist = wordlistFile.read().splitlines() 
 words = [wordlist[random.randint(0, (len(wordlist) - 1))] for i in range (5)]

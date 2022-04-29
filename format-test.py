@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 ###
+### Daniel Alderman, Ann Marie Burke, Ethan Schreiber
 ### CS 21 Concurrent Programming
 ### Spring 2022
 ### Project: Wordle with Friends
