@@ -157,7 +157,6 @@ def main():
 
     # get unique list of words
     words = random.sample(WORDLIST, NUM_WORDS)
-    print(words)
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
