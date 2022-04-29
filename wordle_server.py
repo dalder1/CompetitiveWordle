@@ -22,7 +22,7 @@ WORDLIST = []
 MAX_PLAYERS = 3
 NUM_WORDS = 5
 
-def player_thread(player_sock, words, users_conns, users, index):
+def player_thread(player_sock, words, users_conns, finalScores, index):
     # get player's name
     name = ""
     try:
@@ -81,7 +81,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
                         # add user name + score to array of users
-                        users[index] = (name, score)
+                        finalScores[index] = (name, score)
                         break
                     # if user guesses a word
                     elif (status == Status.CORRECT_GUESS or 
@@ -103,7 +103,7 @@ def player_thread(player_sock, words, users_conns, users, index):
                     users_conns.remove(player_sock)
                     player_sock.close()
                     # user gets a score of 0 b/c the user quit the game
-                    users[index] = (name, 0)
+                    finalScores[index] = (name, 0)
                     return
 
                 # invalid communication
@@ -156,7 +156,7 @@ def main():
 
     # get unique list of words
     words = random.sample(WORDLIST, NUM_WORDS)
-    print(words)
+    print(words) # TODO: REMOVE THIS
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
@@ -176,14 +176,14 @@ def main():
 
     # loop accepting new clients
     client_threads = []
-    users = [None for i in range(MAX_PLAYERS)]
+    finalScores = [None for i in range(MAX_PLAYERS)]
     for i in range(MAX_PLAYERS):
         # accept user connections
         conn, addr = server_sock.accept()
         # add to list and start thread
         conn_list.append(conn)
         thread = threading.Thread(target = player_thread, 
-                                        args=[conn, words, conn_list, users, i])
+                                        args=[conn, words, conn_list, finalScores, i])
         client_threads.append(thread)
         thread.start()
 
@@ -192,12 +192,12 @@ def main():
         thread.join()
 
     # sort users in descending order
-    users.sort(reverse=True, key=lambda tuple: tuple[1])
+    finalScores.sort(reverse=True, key=lambda tuple: tuple[1])
 
     # send all users' final scores to all users
     msg = {
         "status": Status.FULL_GAME_COMPLETE,
-        "users": users
+        "users": finalScores
     }
     send_to_all_players('', pickle.dumps(msg), conn_list)
     for user in conn_list:
