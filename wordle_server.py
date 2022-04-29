@@ -90,11 +90,10 @@ def player_thread(player_sock, words, users_conns, users, index):
                         broadcast = {"status": Status.SCORE_UPDATE,
                                 "name": name,
                                 "score": str(score),
-                                "toPrint": name + " is moving onto the next word!"}
+                                "toPrint": name + 
+                                            " is moving onto the next word!"}
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
-                        # add user name + score to array of users
-                        users[index] = (name, score)
 
                 # client quit case
                 elif data["status"] == Status.CLIENT_QUIT:
