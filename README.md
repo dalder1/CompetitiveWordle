@@ -70,3 +70,12 @@ The string is formatted to print colors for correct and semi-correct letters.
 
 `*-test.py`
 - These are test files for testing code.
+
+`wordlist-large.txt`
+- This file contains a larger list of guessable 5-letter words - it is taken
+from the original Wordle game, and contains 12,972 guessable 5 letter words.
+
+`wordlist-targets.txt`
+- This file contains all the possible target words for our game - it is taken
+from the original Wordle game, and contains 2,315 common(ish) English words
+for use as Wordle answers.

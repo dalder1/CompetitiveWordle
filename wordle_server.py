@@ -17,7 +17,8 @@ from user import User
 from status_codes import Status
 from thread_safe_list import Thread_Safe_List
 
-WORDLIST_FILE = 'wordlist.txt'
+WORDLIST_ALL = 'wordlist-large.txt'
+WORDLIST_TARGETS = 'wordlist-targets.txt'
 WORDLIST = []
 MAX_PLAYERS = 3
 NUM_WORDS = 5
@@ -149,14 +150,17 @@ def main():
     NUM_WORDS = int(input("How many words do you want? "))
 
 
-    # --- choose starting word ---
-    # get list of words for the whole game
-    with open(WORDLIST_FILE) as wordlistFile:
+    # --- get target words and guessable words ---
+    # get list of all target words
+    with open(WORDLIST_TARGETS) as wordlistFile:
         WORDLIST = wordlistFile.read().splitlines()
 
     # get unique list of words
     words = random.sample(WORDLIST, NUM_WORDS)
-    print(words) # TODO: REMOVE THIS
+
+    # get all guessable words
+    with open(WORDLIST_ALL) as wordlistFile:
+        WORDLIST = wordlistFile.read().splitlines()
 
     # --- server socket setup ---
     conn_list = Thread_Safe_List()
@@ -170,7 +174,7 @@ def main():
     PORT = 5023
     server_sock.bind((HOST, PORT))
 
-    # listen    
+    # listen
     server_sock.listen(1)
     print('Wordle server started on port : ' + str(PORT))
 
@@ -183,7 +187,7 @@ def main():
         # add to list and start thread
         conn_list.append(conn)
         thread = threading.Thread(target = player_thread, 
-                                        args=[conn, words, conn_list, finalScores, i])
+                                  args=[conn, words, conn_list, finalScores, i])
         client_threads.append(thread)
         thread.start()
 
