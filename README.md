@@ -79,3 +79,21 @@ from the original Wordle game, and contains 12,972 guessable 5 letter words.
 - This file contains all the possible target words for our game - it is taken
 from the original Wordle game, and contains 2,315 common(ish) English words
 for use as Wordle answers.
+
+## Overview of Packages
+`threading`
+- This package is the standard Python threading library. We use it for our
+server and client threading needs, as well as locks, condition variables, and
+events.
+
+`socket`
+- This package is the standard Python socket library. We use it to connect our
+server and clients.
+
+`pickle`
+- This is a serialization module - we use it to convert our objects into 
+bytestreams for communication between the server and client.
+
+`random`
+- This is the standard python random library - we use it to pick the target
+words.
