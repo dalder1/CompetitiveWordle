@@ -79,13 +79,14 @@ class User:
     
     def __init__(self, name, words):
         '''expects the name of the user as a string and the list of words they
-           must guess. Initalizes the name, words, __currentWod, __pastGuesses,
+           must guess. Initalizes the name, words, __currentWord, __pastGuesses,
            and __printGuesses attributes.'''
         self.name = name
         self.words = words
         self.__currentWord = 0
         self.__pastGuesses = [[] for i in range(len(words))]
         self.__printGuesses = ["" for i in range(len(words))]
+        self.__printGuessesHidden = ["" for i in range(len(words))]
 
 
     def getWord(self):
@@ -124,8 +125,11 @@ class User:
             # append to storage arrays
             self.__pastGuesses[self.__currentWord].append((guess, right, close))
             self.__printGuesses[self.__currentWord] = (
-                                    self.__printGuesses[self.__currentWord] + 
-                                    "\n" + format_colors(guess, right, close))
+                                self.__printGuesses[self.__currentWord] + 
+                                "\n" + format_colors(guess, right, close))
+            self.__printGuessesHidden[self.__currentWord] = (
+                                self.__printGuessesHidden[self.__currentWord] +
+                                "\n" + format_colors("?????", right, close))
             self.__calculateScore()
             self.__guessNumber += 1
 
@@ -134,8 +138,9 @@ class User:
             # game complete on correct guess
             if ((guess == self.words[self.__currentWord]) and 
                                   (self.__currentWord >= (len(self.words) -1))):
+                self.__currentWord += 1
                 return (Status.GAME_COMPLETE, 
-                                        self.__printGuesses[self.__currentWord])
+                                    self.__printGuesses[self.__currentWord-1])
             # word complete on correct guess
             elif (guess == self.words[self.__currentWord]):
                 self.__currentWord += 1
@@ -145,8 +150,9 @@ class User:
             # game complete on wrong guess
             elif ((self.__guessNumber == 7) and 
                                   (self.__currentWord >= (len(self.words) -1))):
+                self.__currentWord += 1
                 return (Status.GAME_COMPLETE, 
-                                        self.__printGuesses[self.__currentWord])
+                                    self.__printGuesses[self.__currentWord-1])
             # word complete on wrong guess
             elif (self.__guessNumber == 7):
                 self.__currentWord += 1
@@ -172,6 +178,9 @@ class User:
     def getScore(self):
         '''Returns the user's current score'''
         return self.__score
+    
+    def getShareBoard(self):
+        return self.__printGuessesHidden[self.__currentWord-1]
 
     def __calculateScore(self):
         '''Updates the self.__score attribute based on the most current guess 

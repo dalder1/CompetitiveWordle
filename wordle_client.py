@@ -112,12 +112,15 @@ def receive(client_sock, queue, end_flag):
             elif status == Status.SCORE_UPDATE:
                 print("")
                 print(data['toPrint'])
+                print(data['name'] + " is moving onto the next word!")
                 print(data['name'] + "'s score: " + data['score'])
             elif status == Status.TERMINATE:
                 # disconnect client
                 break
             elif status == Status.GAME_UPDATE:
-                print("\n" + data['name'] + " has finished with score " + 
+                print("")
+                print(data['toPrint'])
+                print(data['name'] + " has finished with score " + 
                                                                   data['score'])
             else:
                 # wrong status code

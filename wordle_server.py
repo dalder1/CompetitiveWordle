@@ -74,11 +74,11 @@ def player_thread(player_sock, words, users_conns, finalScores, index):
 
                     # if game complete, i.e., if user guesses all words
                     if status == Status.GAME_COMPLETE:
-
                         # make msg = final score, player name
                         broadcast = {"status": Status.GAME_UPDATE,
                                 "name": name,
-                                "score": str(score)}
+                                "score": str(score),
+                                "toPrint": user.getShareBoard()}
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
                         # add user name + score to array of users
@@ -91,8 +91,7 @@ def player_thread(player_sock, words, users_conns, finalScores, index):
                         broadcast = {"status": Status.SCORE_UPDATE,
                                 "name": name,
                                 "score": str(score),
-                                "toPrint": name + 
-                                            " is moving onto the next word!"}
+                                "toPrint": user.getShareBoard()}
                         send_to_all_players(player_sock, 
                                            pickle.dumps(broadcast), users_conns)
 
